@@ -2,16 +2,12 @@ package dqdatabase;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.ArrayList;
 import java.sql.*;
 
 public class Database {
 	private Connection conn = null;
 	private static final String DB_ADDR = "db/main_database.db";
-
-	public static void main(String[] args) {
-		System.out.println("hello world!");
-
-	}
 
 	public void closeConnection() {
 		if (this.conn != null) {
@@ -19,6 +15,8 @@ public class Database {
 				this.conn.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				this.conn = null;
 			}
 		}
 	}
@@ -28,27 +26,77 @@ public class Database {
 			try {
 				Class.forName("org.sqlite.JDBC");
 				this.conn = DriverManager.getConnection("jdbc:sqlite:" + DB_ADDR);
+				conn.setAutoCommit(false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return this.conn;
 	}
-	
-	public void test() {
+
+	public Connection ensureConnection() {
+		try {
+			if (this.conn == null || this.conn.isValid(500)) {
+				closeConnection();
+				createConnection();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return this.conn;
+	}
+
+	public void show() {
+		ensureConnection();
 		if (conn != null) {
-			Statement stat = conn.createStatement();
-			ResultSet rs = stat.executeQuery("SELECT uid, content FROM Info");
-			while (rs.next()) {
-				String id = rs.getString("uid");
-				String name = rs.getString("content");
-				System.out.println(id + "\t" + name);
+			try {
+				final String command_select = "SELECT uid, content FROM Info";
+				Statement stat = conn.createStatement();
+				ResultSet rs = stat.executeQuery(command_select);
+				while (rs.next()) {
+					String id = rs.getString("uid");
+					String name = rs.getString("content");
+					System.out.println(id + "\t" + name);
+				}
+
+//				conn.commit();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		closeConnection();
 	}
 
+	public ArrayList<Task> getList() {
+		ArrayList<Task> result = new ArrayList<Task>();
+		createConnection();
+
+		// TODO GetList
+
+		closeConnection();
+		return result;
+	}
+
+	public boolean regenerate(String uid, String recent_completion_date) {
+		boolean result = false;
+		createConnection();
+		if (conn != null) {
+			try {
+				final String command = "UPDATE Info SET done = 0 WHERE uid is " + uid;
+				final String command2 = "UPDATE Info SET recent_completion_date = '" + recent_completion_date + "' WHERE uid is " + uid;
+				Statement stat = conn.createStatement();
+				stat.executeUpdate(command);
+				stat.executeUpdate(command2);
+				conn.commit();
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		closeConnection();
+		return result;
+	}
 
 }
-
-

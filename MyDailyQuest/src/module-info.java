@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author sanghun
- *
- */
-module MyDailyQuest {
-}

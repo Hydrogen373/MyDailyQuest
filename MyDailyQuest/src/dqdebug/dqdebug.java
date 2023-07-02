@@ -9,7 +9,7 @@ public class dqdebug {
 		Database db = new Database();
 		
 		db.show();
-		db.regen("3", "20220203");
+		db.regenerate("3", "20220203");
 		db.show();
 		return;
 

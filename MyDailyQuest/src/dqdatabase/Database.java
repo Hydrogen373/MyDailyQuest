@@ -47,7 +47,7 @@ public class Database {
 		return this.conn;
 	}
 
-	private Connection ensureStatement() {
+	private Connection ensureConnection() {
 		try {
 			if (this.conn == null || this.conn.isValid(500)) {
 				closeAll();
@@ -62,7 +62,7 @@ public class Database {
 	
 
 	public void show() {
-		ensureStatement();
+		ensureConnection();
 		if (conn != null) {
 			try {
 				final String sql = "SELECT uid, content FROM Info";
@@ -112,7 +112,7 @@ public class Database {
 	}
 
 	public ArrayList<TaskBox> loadAllInfo() {
-		ensureStatement();
+		ensureConnection();
 		ArrayList<TaskBox> result = new ArrayList<TaskBox>();
 		if (conn != null) {
 			try {
@@ -138,7 +138,7 @@ public class Database {
 	
 	public boolean checkDone(String uid, boolean done, String tmp_completion_date) {
 		boolean result = false;
-		ensureStatement();
+		ensureConnection();
 		if(conn != null) {
 			try {
 				final String sql = "UPDATE Info SET done = ?, tmp_completion_date = ? WHERE uid is ?";

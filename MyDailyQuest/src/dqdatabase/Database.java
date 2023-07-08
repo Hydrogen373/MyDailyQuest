@@ -71,15 +71,6 @@ public class Database {
 		closeConnection();
 	}
 
-	public ArrayList<Task> getList() {
-		ArrayList<Task> result = new ArrayList<Task>();
-		createConnection();
-
-		// TODO GetList
-
-		closeConnection();
-		return result;
-	}
 
 	public boolean regenerate(String uid, String recent_completion_date) {
 		boolean result = false;

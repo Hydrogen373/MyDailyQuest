@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-import dqdatabase.Task;
 
 public class GUIManager {
 	JFrame mainFrame = new JFrame();

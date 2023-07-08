@@ -141,7 +141,7 @@ public class Database {
 		ensureStatement();
 		if(conn != null) {
 			try {
-				final String sql = "UPDATE Info SET done = ?, tmp = ? WHERE uid is ?";
+				final String sql = "UPDATE Info SET done = ?, tmp_completion_date = ? WHERE uid is ?";
 				stmt = conn.prepareStatement(sql);
 				stmt.setInt(1, done?1:0);
 				stmt.setString(2, tmp_completion_date);
@@ -149,6 +149,7 @@ public class Database {
 
 				stmt.executeUpdate();
 
+				conn.commit();
 				result = true;
 			}catch (Exception e){
 				e.printStackTrace();

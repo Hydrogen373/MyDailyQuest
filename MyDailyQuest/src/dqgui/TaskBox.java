@@ -33,9 +33,9 @@ public class TaskBox {
 		panel.add(check);
 		check.setText(content);
 		
-		//debug
-		panel.add(new JLabel("debug content"));
-		panel.setBackground(Color.green);
+//		//debug
+//		panel.add(new JLabel("debug content"));
+//		panel.setBackground(Color.green);
 
 		
 	}

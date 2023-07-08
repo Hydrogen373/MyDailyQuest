@@ -14,7 +14,11 @@ public class dqdebug {
 //		db.show();
 		
 		GUIManager gui = new GUIManager();
-		gui.test();
+		
+		gui.resetTasks(db.loadAllInfo());
+		
+		
+		gui.show();
 		
 		return;
 

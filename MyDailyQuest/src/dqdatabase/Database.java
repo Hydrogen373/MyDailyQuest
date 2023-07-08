@@ -3,6 +3,9 @@ package dqdatabase;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
+
+import dqgui.TaskBox;
+
 import java.sql.*;
 
 public class Database {
@@ -95,6 +98,31 @@ public class Database {
 			}
 		}
 
+		closeConnection();
+		return result;
+	}
+	
+	public ArrayList<TaskBox> loadAllInfo() {
+		ensureConnection();
+		ArrayList<TaskBox> result = new ArrayList<TaskBox>();
+		if(conn != null) {
+			try {
+				final String command = "SELECT * FROM Info";
+				Statement stat = conn.createStatement();
+				ResultSet rs = stat.executeQuery(command);
+				while (rs.next()) {
+					String uid = rs.getString("uid");
+					String content = rs.getString("content");
+					String recent_completion_date = rs.getString("recent_completion_date");
+					boolean done = (rs.getInt("done") == 1);
+					String tmp_completion_date = rs.getString("tmp_completion_date");
+					
+					result.add(new TaskBox(uid, content, recent_completion_date, done, tmp_completion_date));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		closeConnection();
 		return result;
 	}

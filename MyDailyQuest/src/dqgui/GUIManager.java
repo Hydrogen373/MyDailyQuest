@@ -10,22 +10,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import dqdatabase.Task;
+
 public class GUIManager {
+	JFrame mainFrame = new JFrame();
+	JPanel mainPanel = new JPanel();
+	ArrayList<TaskBox> tasks = new ArrayList<TaskBox>();
+	JPanel tasksPanel = new JPanel();
 	
 	public void test() {
-		JFrame mainFrame = new JFrame();
-		JPanel mainPanel = new JPanel();
 		CardLayout cards = new CardLayout();
 		mainPanel.setLayout(cards);
 
 		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
 		
-		ArrayList<TaskBox> tasks = new ArrayList<TaskBox>();
 		tasks.add(new TaskBox("00", "Study English", "20220101", false, null));
 		tasks.add(new TaskBox("01", "Study Korean", "20220101", false, null));
 		tasks.add(new TaskBox("02", "Study Japanesh", "20220101", false, null));
 
-		JPanel tasksPanel = new JPanel();
 		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
 		for (TaskBox task : tasks) {
 			tasksPanel.add(task.getPanel());
@@ -57,6 +59,38 @@ public class GUIManager {
 		
 		
 		return result;
+	}
+	
+	public void show() {
+		CardLayout cards = new CardLayout();
+		mainPanel.setLayout(cards);
+
+		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
+		
+		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
+		for (TaskBox task : tasks) {
+			tasksPanel.add(task.getPanel());
+		}
+		
+		mainPanel.add(tasksPanel);
+		
+		mainFrame.add(mainPanel);
+		mainFrame.setVisible(true);
+		mainFrame.setSize(840, 700);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
+		
+		cards.next(mainPanel);
+		
+	}
+	
+	public void resetTasks(ArrayList<TaskBox> newTasks) {
+		tasksPanel = new JPanel();
+		tasks = newTasks;
+		
+		for(TaskBox task : tasks) {
+			tasksPanel.add(task.getPanel());
+		}
 	}
 
 }

@@ -18,6 +18,7 @@ public class TaskBox {
 	JCheckBox check = new JCheckBox();
 	
 	
+	
 	public TaskBox(String uid, String content, String recent_completion_date, boolean done, String tmp_completion_date) {
 		this.uid = uid;
 //		this.content.setText(content);
@@ -46,6 +47,8 @@ public class TaskBox {
 	public void modifyContent(String newContent) {
 		this.check.setText(newContent);
 	}
+	
+	
 	
 	
 	

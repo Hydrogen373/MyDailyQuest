@@ -21,6 +21,7 @@ public class dqdebug {
 		
 		db.setPin("debug", "newpin");
 		db.setPin("2", "newpin");
+		db.setPin("3", "lowerPin");
 		
 		
 		
@@ -40,6 +41,7 @@ public class dqdebug {
 		gui.show();
 		
 		db.removeTask("debug");
+		db.unsetPin("3", "lowerPin");
 		
 		return;
 

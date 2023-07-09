@@ -305,9 +305,33 @@ public class Database {
 				stmt.setString(1, uid);
 				stmt.setString(2, pinName);
 				stmt.executeUpdate();
-				
+
 				conn.commit();
 				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean unsetPin(String uid, String pinName) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				String sql = "DELETE FROM Pin WHERE uid is ? AND name is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.setString(2, pinName);
+
+				stmt.execute();
+
+				conn.commit();
+
+				result = true;
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -353,12 +377,11 @@ public class Database {
 
 				priorities = null;
 
-				ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(),
-						falseList = new ArrayList<TaskBox>();
-				for(TaskBox task : tasks) {
+				ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falseList = new ArrayList<TaskBox>();
+				for (TaskBox task : tasks) {
 					if (!task.done) {
 						trueList.add(task);
-					}else {
+					} else {
 						falseList.add(task);
 					}
 				}
@@ -371,7 +394,6 @@ public class Database {
 			}
 
 		}
-		
 
 		closeAll();
 		return result;

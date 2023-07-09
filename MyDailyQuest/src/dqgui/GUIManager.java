@@ -84,7 +84,7 @@ public class GUIManager {
 	}
 	
 	public void resetTasks(ArrayList<TaskBox> newTasks) {
-		tasksPanel = new JPanel();
+		tasksPanel.removeAll();
 		tasks = newTasks;
 		
 		for(TaskBox task : tasks) {

@@ -3,6 +3,8 @@ package dqdatabase;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import dqgui.TaskBox;
 
@@ -12,6 +14,10 @@ public class Database {
 	private Connection conn = null;
 	private static final String DB_ADDR = "db/main_database.db";
 	private PreparedStatement stmt = null;
+
+	private static final String DEFAULT_DATE = "00000000";
+
+	private static ArrayList<String> priorities;
 
 	private void closeAll() {
 		if (this.stmt != null) {
@@ -59,22 +65,18 @@ public class Database {
 
 		return this.conn;
 	}
-	
 
-	public void show() {
+	public void test() {
 		ensureConnection();
 		if (conn != null) {
 			try {
-				final String sql = "SELECT uid, content FROM Info";
+				final String sql = "UPDATE PinInfo SET priority = ? WHERE name is ?";
 				stmt = conn.prepareStatement(sql);
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()) {
-					String id = rs.getString("uid");
-					String name = rs.getString("content");
-					System.out.println(id + "\t" + name);
-				}
+				stmt.setInt(1, 1);
+				stmt.setString(2, "newpin");
+				stmt.executeUpdate();
 
-//				conn.commit();
+				conn.commit();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -92,7 +94,7 @@ public class Database {
 //						+ "' WHERE uid is " + uid;
 //				stat.executeUpdate(command);
 //				stat.executeUpdate(command2);
-				
+
 				final String sql = "UPDATE Info SET done = ?, recent_completion_date = ? WHERE uid is ?";
 				stmt = conn.prepareStatement(sql);
 				stmt.setInt(1, 0);
@@ -135,15 +137,37 @@ public class Database {
 		closeAll();
 		return result;
 	}
-	
+
+	public boolean setPriority(String name, int priority) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				final String sql = "UPDATE PinInfo SET priority = ? WHERE name = ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setInt(1, priority);
+				stmt.setString(2, name);
+				stmt.executeUpdate();
+
+				conn.commit();
+
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
 	public boolean checkDone(String uid, boolean done, String tmp_completion_date) {
 		boolean result = false;
 		ensureConnection();
-		if(conn != null) {
+		if (conn != null) {
 			try {
 				final String sql = "UPDATE Info SET done = ?, tmp_completion_date = ? WHERE uid is ?";
 				stmt = conn.prepareStatement(sql);
-				stmt.setInt(1, done?1:0);
+				stmt.setInt(1, done ? 1 : 0);
 				stmt.setString(2, tmp_completion_date);
 				stmt.setString(3, uid);
 
@@ -151,10 +175,204 @@ public class Database {
 
 				conn.commit();
 				result = true;
-			}catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		closeAll();
+		return result;
+	}
+
+	public boolean addTask(String uid, String content) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				String sql = String.format("INSERT INTO Info VALUES (?, ?, null, 0, null)", DEFAULT_DATE, DEFAULT_DATE);
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.setString(2, content);
+				stmt.executeUpdate();
+
+				conn.commit();
+
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean removeTask(String uid) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				// TODO Delete from RegenRult
+//				 final String sql = "DELETE FROM RegenRule WHERE uid is ?";
+
+				String sql = "DELETE FROM Info WHERE uid is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.executeUpdate();
+				stmt.close();
+
+				sql = "DELETE FROM Pin WHERE uid is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.executeUpdate();
+				stmt.close();
+
+				sql = "DELETE FROM RegenRule WHERE uid is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.executeUpdate();
+				stmt.close();
+
+				conn.commit();
+
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean addPin(String name) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				String sql = "SELECT COUNT(*) FROM PinInfo";
+				stmt = conn.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();
+				int priority = rs.getInt(1) + 1;
+
+				sql = "INSERT INTO PinInfo (name, priority) VALUES (?, ?)";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, name);
+				stmt.setInt(2, priority);
+				stmt.executeUpdate();
+
+				conn.commit();
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean removePin(String name) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				String sql = "DELETE FROM PinInfo WHERE name is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, name);
+				stmt.executeUpdate();
+				stmt.close();
+
+				sql = "DELETE FROM Pin WHERE name is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, name);
+				stmt.executeUpdate();
+				stmt.close();
+
+				conn.commit();
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean setPin(String uid, String pinName) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				String sql = "INSERT INTO Pin (uid, name) VALUES (?, ?)";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.setString(2, pinName);
+				stmt.executeUpdate();
+				
+				conn.commit();
+				result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public ArrayList<TaskBox> sort(ArrayList<TaskBox> tasks) {
+		ArrayList<TaskBox> result = null;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				priorities = new ArrayList<String>();
+
+				String sql = "SELECT * FROM PinInfo";
+				stmt = conn.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					priorities.add(rs.getString("name"));
+				}
+				rs.close();
+				stmt.close();
+
+				Collections.reverse(priorities);
+				for (String name : priorities) {
+					sql = "SELECT * FROM Pin WHERE uid is ? AND name is ?";
+					stmt = conn.prepareStatement(sql);
+					ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falsesList = new ArrayList<TaskBox>();
+					for (TaskBox task : tasks) {
+						stmt.setString(1, task.uid);
+						stmt.setString(2, name);
+						rs = stmt.executeQuery();
+						if (rs.next()) {
+							trueList.add(task);
+						} else {
+							falsesList.add(task);
+						}
+					}
+					trueList.addAll(falsesList);
+					tasks = trueList;
+				}
+
+				priorities = null;
+
+				ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(),
+						falseList = new ArrayList<TaskBox>();
+				for(TaskBox task : tasks) {
+					if (!task.done) {
+						trueList.add(task);
+					}else {
+						falseList.add(task);
+					}
+				}
+				trueList.addAll(falseList);
+
+				result = trueList;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		
+
 		closeAll();
 		return result;
 	}

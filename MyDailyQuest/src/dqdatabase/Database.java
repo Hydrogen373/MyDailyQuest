@@ -2,7 +2,9 @@ package dqdatabase;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -13,6 +15,7 @@ import java.sql.*;
 public class Database {
 	private Connection conn = null;
 	private static final String DB_ADDR = "db/main_database.db";
+	private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	private PreparedStatement stmt = null;
 
 	private static final String DEFAULT_DATE = "00000000";
@@ -181,6 +184,42 @@ public class Database {
 		}
 		closeAll();
 		return result;
+	}
+
+	public String checkDone(String uid, boolean done) {
+		String result = null;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				if (done) {
+					Calendar cal = Calendar.getInstance();
+					String tmp_completion_date = sdf.format(cal.toString());
+
+					final String sql = "UPDATE Info SET done = ?, tmp_completion_date = ? WHERE uid is ?";
+					stmt = conn.prepareStatement(sql);
+					stmt.setInt(1, done ? 1 : 0);
+					stmt.setString(2, tmp_completion_date);
+					stmt.setString(3, uid);
+
+					stmt.execute();
+					conn.commit();
+
+					result = tmp_completion_date;
+				} else {
+					final String sql = "SELECT recent_completion_date FROM Info";
+
+					ResultSet rs = stmt.executeQuery();
+
+					result = rs.getString(0);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+
 	}
 
 	public boolean addTask(String uid, String content) {

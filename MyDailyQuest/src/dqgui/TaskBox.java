@@ -69,13 +69,14 @@ public class TaskBox extends JPanel implements MouseListener {
 			String tmp_completion_date) {
 		this.data.uid = uid;
 		this.data.recent_completion_date = recent_completion_date != null ? recent_completion_date : TaskData.DEFAULT_DATE;
-		this.dateLabel.setText(this.data.recent_completion_date);
+		this.dateLabel.setText(done?tmp_completion_date:recent_completion_date);
 		this.data.done = done;
 		this.data.tmp_completion_date = tmp_completion_date != null ? tmp_completion_date : TaskData.DEFAULT_DATE;
 		this.data.content = content;
 
 		check.setSelected(done);
 		check.setText(data.content);
+		check.addMouseListener(this);
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setAlignmentX(0);
@@ -83,14 +84,28 @@ public class TaskBox extends JPanel implements MouseListener {
 		this.add(check);
 	}
 	
-	public String getTaskID() {
+	public String getUID() {
 		return this.data.uid;
+	}
+	
+	public boolean getDone() {
+		return this.check.isSelected();
+	}
+	
+	public void modifyContent(String newContent) {
+		this.data.content = newContent;
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if(e.getButton()==MouseEvent.BUTTON1) {
-			data.checkDone();
+			System.out.println("check!");
+			Database db = new Database();
+			String result = db.checkDone(getUID(), getDone());
+			if(result != null) {
+				this.dateLabel.setText(result);
+				System.out.println(result);
+			}
 		}
 		
 	}

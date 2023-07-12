@@ -29,7 +29,7 @@ public class GUIManager {
 
 		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
 		for (TaskBox task : tasks) {
-			tasksPanel.add(task.getPanel());
+			tasksPanel.add(task);
 		}
 		
 		mainPanel.add(tasksPanel);
@@ -68,7 +68,7 @@ public class GUIManager {
 		
 		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
 		for (TaskBox task : tasks) {
-			tasksPanel.add(task.getPanel());
+			tasksPanel.add(task);
 		}
 		
 		mainPanel.add(tasksPanel);
@@ -88,7 +88,7 @@ public class GUIManager {
 		tasks = newTasks;
 		
 		for(TaskBox task : tasks) {
-			tasksPanel.add(task.getPanel());
+			tasksPanel.add(task);
 		}
 	}
 

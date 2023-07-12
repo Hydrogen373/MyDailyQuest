@@ -12,15 +12,16 @@ public class dqdebug {
 		Database db = new Database();
 		db.regenerate("2", "20220202");
 		db.checkDone("4", true, "20230709");
+		db.removeTask("debug");
 		db.addTask("debug", "debugtest05");
 		
-		db.removePin("newpin");
+		db.removePin("highpin");
 		db.removePin("lowerPin");
+		db.addPin("highpin");
 		db.addPin("lowerPin");
-		db.addPin("newpin");
 		
-		db.setPin("debug", "newpin");
-		db.setPin("2", "newpin");
+		db.setPin("debug", "highpin");
+		db.setPin("2", "highpin");
 		db.setPin("3", "lowerPin");
 		
 		
@@ -40,9 +41,9 @@ public class dqdebug {
 		
 		gui.show();
 		
-		db.removeTask("debug");
 		db.unsetPin("3", "lowerPin");
 		
+		System.out.println("closed!");
 		return;
 
 	}

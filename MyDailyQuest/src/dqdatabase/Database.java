@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+
+import javax.print.attribute.HashAttributeSet;
 
 import dqgui.TaskBox;
 
@@ -191,26 +194,34 @@ public class Database {
 		ensureConnection();
 		if (conn != null) {
 			try {
+				String sql;
 				if (done) {
 					Calendar cal = Calendar.getInstance();
-					String tmp_completion_date = sdf.format(cal.toString());
+					String tmp_completion_date = sdf.format(cal.getTime());
 
-					final String sql = "UPDATE Info SET done = ?, tmp_completion_date = ? WHERE uid is ?";
+					sql = "UPDATE Info SET done = 1, tmp_completion_date = ? WHERE uid is ?";
 					stmt = conn.prepareStatement(sql);
-					stmt.setInt(1, done ? 1 : 0);
-					stmt.setString(2, tmp_completion_date);
-					stmt.setString(3, uid);
+					stmt.setString(1, tmp_completion_date);
+					stmt.setString(2, uid);
 
 					stmt.execute();
 					conn.commit();
 
 					result = tmp_completion_date;
 				} else {
-					final String sql = "SELECT recent_completion_date FROM Info";
-
+					sql = "UPDATE Info SET done = 0 WHERE uid is ?";
+					stmt = conn.prepareStatement(sql);
+					stmt.setString(1, uid);
+					stmt.execute();
+					
+					sql = "SELECT recent_completion_date FROM Info WHERE uid is ?";
+					stmt = conn.prepareStatement(sql);
+					stmt.setString(1, uid);
 					ResultSet rs = stmt.executeQuery();
 
-					result = rs.getString(0);
+					conn.commit();
+
+					result = rs.getString("recent_completion_date");
 				}
 
 			} catch (Exception e) {
@@ -227,7 +238,7 @@ public class Database {
 		ensureConnection();
 		if (conn != null) {
 			try {
-				String sql = String.format("INSERT INTO Info VALUES (?, ?, null, 0, null)", DEFAULT_DATE, DEFAULT_DATE);
+				String sql = String.format("INSERT INTO Info VALUES (?, ?, '%s', 0, '%s')", DEFAULT_DATE, DEFAULT_DATE);
 				stmt = conn.prepareStatement(sql);
 				stmt.setString(1, uid);
 				stmt.setString(2, content);
@@ -386,7 +397,7 @@ public class Database {
 			try {
 				priorities = new ArrayList<String>();
 
-				String sql = "SELECT * FROM PinInfo";
+				String sql = "SELECT * FROM PinInfo WHERE activation is 1";
 				stmt = conn.prepareStatement(sql);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()) {
@@ -396,12 +407,13 @@ public class Database {
 				stmt.close();
 
 				Collections.reverse(priorities);
+
 				for (String name : priorities) {
 					sql = "SELECT * FROM Pin WHERE uid is ? AND name is ?";
 					stmt = conn.prepareStatement(sql);
 					ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falsesList = new ArrayList<TaskBox>();
 					for (TaskBox task : tasks) {
-						stmt.setString(1, task.uid);
+						stmt.setString(1, task.getUID());
 						stmt.setString(2, name);
 						rs = stmt.executeQuery();
 						if (rs.next()) {
@@ -418,7 +430,7 @@ public class Database {
 
 				ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falseList = new ArrayList<TaskBox>();
 				for (TaskBox task : tasks) {
-					if (!task.done) {
+					if (!task.getDone()) {
 						trueList.add(task);
 					} else {
 						falseList.add(task);

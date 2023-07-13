@@ -1,6 +1,9 @@
 package dqgui;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -8,62 +11,26 @@ import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
 
 import dqdatabase.Database;
-
-//public class TaskBox {
-//	public String uid = "";
-////	JLabel content = new JLabel();
-//	JLabel dateLabel = new JLabel();
-//	String recent_completion_date;
-//	String tmp_completion_date;
-//	public boolean done = false;
-//	JPanel panel = new JPanel();
-//	JCheckBox check = new JCheckBox();
-//
-//	final static String DEFAULT_DATE = "00000000";
-//
-//	public TaskBox(String uid, String content, String recent_completion_date, boolean done,
-//			String tmp_completion_date) {
-//		this.uid = uid;
-////		this.content.setText(content);
-//		this.recent_completion_date = recent_completion_date != null ? recent_completion_date : DEFAULT_DATE;
-//		this.dateLabel.setText(this.recent_completion_date);
-//		this.done = done;
-//		check.setSelected(done);
-//		this.tmp_completion_date = tmp_completion_date != null ? tmp_completion_date : DEFAULT_DATE;
-//
-//		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-//		panel.setAlignmentX(0);
-//		panel.add(this.dateLabel);
-//		panel.add(check);
-//		check.setText(content);
-//
-////		//debug
-////		panel.add(new JLabel("debug content"));
-////		panel.setBackground(Color.green);
-//
-//	}
-//
-//	public JPanel getPanel() {
-//		return this.panel;
-//	}
-//
-//	public void modifyContent(String newContent) {
-//		this.check.setText(newContent);
-//	}
-//
-//}
 
 public class TaskBox extends JPanel implements MouseListener {
 	TaskData data = new TaskData();
 	JLabel dateLabel = new JLabel();
-	JCheckBox check = new JCheckBox();
+	JLabel checkLabel = new JLabel();
+	JLabel contentLabel = new JLabel();
+	
+	static final ImageIcon ICON_CIRCLE = new ImageIcon("icon/circle.png");
+	static final ImageIcon ICON_CHECKED = new ImageIcon("icon/check.png");
 	
 	public TaskBox(String uid, String content, String recent_completion_date, boolean done,
 			String tmp_completion_date) {
@@ -73,15 +40,38 @@ public class TaskBox extends JPanel implements MouseListener {
 		this.data.done = done;
 		this.data.tmp_completion_date = tmp_completion_date != null ? tmp_completion_date : TaskData.DEFAULT_DATE;
 		this.data.content = content;
-
-		check.setSelected(done);
-		check.setText(data.content);
-		check.addMouseListener(this);
 		
+		if(this.data.done) {
+			checkLabel.setIcon(ICON_CHECKED);
+		}
+		else {
+			checkLabel.setIcon(ICON_CIRCLE);
+		}
+		checkLabel.setSize(1,1);
+		
+		contentLabel.setText(this.data.content);
+		
+//		this.setLayout(new GridLayout());
+//		this.setLayout(new BoxLayout(checkLabel, BoxLayout.X_AXIS));
+//		this.setAlignmentX(LEFT_ALIGNMENT);
+		this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+//		this.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+
+
+//		JPanel panel = new JPanel();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		this.setAlignmentX(0);
+		this.setBorder(new LineBorder(Color.black));
+		this.dateLabel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
+		this.contentLabel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
 		this.add(this.dateLabel);
-		this.add(check);
+		this.add(this.checkLabel);
+		this.add(this.contentLabel);
+		this.addMouseListener(this);
+//		this.add(panel);
+		
+//		this.setBorder(new BevelBorder(BevelBorder.RAISED));
+//		this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+//		this.setBorder(BorderFactory.createEmptyBorder(0,10,5,10));
 	}
 	
 	public String getUID() {
@@ -89,7 +79,7 @@ public class TaskBox extends JPanel implements MouseListener {
 	}
 	
 	public boolean getDone() {
-		return this.check.isSelected();
+		return this.data.done;
 	}
 	
 	public void modifyContent(String newContent) {
@@ -98,12 +88,32 @@ public class TaskBox extends JPanel implements MouseListener {
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	boolean ready = false;
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if(!ready) return;
 		if(e.getButton()==MouseEvent.BUTTON1) {
 			System.out.println("check!");
 			Database db = new Database();
-			String result = db.checkDone(getUID(), getDone());
+			String result = db.checkDone(getUID(), !getDone());
 			if(result != null) {
 				this.dateLabel.setText(result);
+				this.data.done = !this.data.done;
+				if(this.data.done) {
+					checkLabel.setIcon(ICON_CHECKED);
+				}
+				else {
+					checkLabel.setIcon(ICON_CIRCLE);
+				}
+
 				System.out.println(result);
 			}
 		}
@@ -111,26 +121,16 @@ public class TaskBox extends JPanel implements MouseListener {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
+		ready = true;
 		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
+		ready = false;
 		
 	}
 	

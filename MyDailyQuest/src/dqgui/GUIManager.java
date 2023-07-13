@@ -1,7 +1,9 @@
 package dqgui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -9,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
+import javax.swing.border.LineBorder;
 
 
 public class GUIManager {
@@ -16,37 +19,32 @@ public class GUIManager {
 	JPanel mainPanel = new JPanel();
 	ArrayList<TaskBox> tasks = new ArrayList<TaskBox>();
 	JPanel tasksPanel = new JPanel();
+	CardLayout cards = new CardLayout();
 	
-	public void test() {
-		CardLayout cards = new CardLayout();
+	public GUIManager() {
 		mainPanel.setLayout(cards);
 
-		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
+//		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
 		
-		tasks.add(new TaskBox("00", "Study English", "20220101", false, null));
-		tasks.add(new TaskBox("01", "Study Korean", "20220101", false, null));
-		tasks.add(new TaskBox("02", "Study Japanesh", "20220101", false, null));
-
-		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
+		JPanel card1 = new JPanel();
+		card1.setLayout(new GridLayout(2,1));
+		
+		JPanel pinsPanel = new JPanel();
+		
+		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
 		for (TaskBox task : tasks) {
 			tasksPanel.add(task);
 		}
+		tasksPanel.setBorder(new LineBorder(Color.black));
 		
-		mainPanel.add(tasksPanel);
-		
-		
+		card1.add(pinsPanel);
+		card1.add(tasksPanel);
+
+		mainPanel.add(card1);
 		mainFrame.add(mainPanel);
-		mainFrame.setVisible(true);
-		mainFrame.setSize(840, 700);
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setLocationRelativeTo(null);
-//		mainFrame.setResizable(false);
-		
-		tasks.get(0).modifyContent("this is new content");
-		
-		cards.next(mainPanel);
-		
+
 	}
+	
 	
 	public JPanel getTaskBox(String uid, String content) {
 		JPanel result = new JPanel();
@@ -61,26 +59,11 @@ public class GUIManager {
 	}
 	
 	public void show() {
-		CardLayout cards = new CardLayout();
-		mainPanel.setLayout(cards);
-
-		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
 		
-		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.PAGE_AXIS));
-		for (TaskBox task : tasks) {
-			tasksPanel.add(task);
-		}
-		
-		mainPanel.add(tasksPanel);
-		
-		mainFrame.add(mainPanel);
 		mainFrame.setVisible(true);
 		mainFrame.setSize(840, 700);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);
-		
-		cards.next(mainPanel);
-		
 	}
 	
 	public void resetTasks(ArrayList<TaskBox> newTasks) {

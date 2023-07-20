@@ -31,6 +31,8 @@ public class GUIManager {
 		
 		JPanel pinsPanel = new JPanel();
 		
+		JPanel menuPanel = new JPanel();
+		
 		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
 		for (TaskBox task : tasks) {
 			tasksPanel.add(task);
@@ -75,4 +77,11 @@ public class GUIManager {
 		}
 	}
 
+}
+
+
+class MenuPanel extends JPanel{
+	MenuPanel(){
+		
+	}
 }

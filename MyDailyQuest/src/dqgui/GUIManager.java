@@ -45,7 +45,8 @@ public class GUIManager {
 //		JPanel menuPanel = new JPanel();
 		
 		JPanel center = new JPanel();
-		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
+//		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
+		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS));
 		for (TaskBox task : tasks) {
 			tasksPanel.add(task);
 		}
@@ -53,7 +54,7 @@ public class GUIManager {
 		center.add(tasksPanel);
 		
 		card1.add(pinsPanel, BorderLayout.NORTH);
-		card1.add(center, BorderLayout.CENTER);
+		card1.add(tasksPanel, BorderLayout.CENTER);
 
 		mainPanel.add(card1);
 		mainFrame.add(mainPanel);

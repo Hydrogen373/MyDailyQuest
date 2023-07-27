@@ -28,70 +28,57 @@ public class TaskBox extends JPanel implements MouseListener {
 	JLabel dateLabel = new JLabel();
 	JLabel checkLabel = new JLabel();
 	JLabel contentLabel = new JLabel();
-	
+
 	static final ImageIcon ICON_CIRCLE = new ImageIcon("icon/circle.png");
 	static final ImageIcon ICON_CHECKED = new ImageIcon("icon/check.png");
-	
+
 	public TaskBox(String uid, String content, String recent_completion_date, boolean done,
 			String tmp_completion_date) {
 		this.data.uid = uid;
-		this.data.recent_completion_date = recent_completion_date != null ? recent_completion_date : TaskData.DEFAULT_DATE;
-		this.dateLabel.setText(done?tmp_completion_date:recent_completion_date);
+		this.data.recent_completion_date = recent_completion_date != null ? recent_completion_date
+				: TaskData.DEFAULT_DATE;
+		this.dateLabel.setText(done ? tmp_completion_date : recent_completion_date);
 		this.data.done = done;
 		this.data.tmp_completion_date = tmp_completion_date != null ? tmp_completion_date : TaskData.DEFAULT_DATE;
 		this.data.content = content;
-		
-		if(this.data.done) {
-			checkLabel.setIcon(ICON_CHECKED);
-		}
-		else {
-			checkLabel.setIcon(ICON_CIRCLE);
-		}
-		checkLabel.setSize(1,1);
-		
+
+		checkLabel.setIcon(this.data.done ? ICON_CHECKED : ICON_CIRCLE);
+		checkLabel.setSize(1, 1);
+
 		contentLabel.setText(this.data.content);
-		
-//		this.setLayout(new GridLayout());
-//		this.setLayout(new BoxLayout(checkLabel, BoxLayout.X_AXIS));
-//		this.setAlignmentX(LEFT_ALIGNMENT);
-//		this.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
 
-
-//		JPanel panel = new JPanel();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new LineBorder(Color.black));
-		this.dateLabel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
-		this.contentLabel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
+		this.dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		this.contentLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		this.add(this.dateLabel);
 		this.add(this.checkLabel);
 		this.add(this.contentLabel);
 		this.addMouseListener(this);
-//		this.add(panel);
-		
-//		this.setBorder(new BevelBorder(BevelBorder.RAISED));
-//		this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-//		this.setBorder(BorderFactory.createEmptyBorder(0,10,5,10));
-		this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 10));
+
+		this.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+				Integer.max(contentLabel.getPreferredSize().height, checkLabel.getPreferredSize().height + 15)));
 	}
-	
+
 	public String getUID() {
 		return this.data.uid;
 	}
-	
+
 	public boolean getDone() {
 		return this.data.done;
 	}
-	
+
 	public void modifyContent(String newContent) {
 		this.data.content = newContent;
 	}
-	
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		
+
 	}
 
 	boolean ready = false;
+
 	@Override
 	public void mousePressed(MouseEvent e) {
 	}
@@ -99,69 +86,64 @@ public class TaskBox extends JPanel implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if(!ready) return;
-		if(e.getButton()==MouseEvent.BUTTON1) {
+		if (!ready)
+			return;
+		if (e.getButton() == MouseEvent.BUTTON1) {
 //			System.out.println("check!");
 			Database db = new Database();
 			String result = db.checkDone(getUID(), !getDone());
-			if(result != null) {
+			if (result != null) {
 				this.dateLabel.setText(result);
 				this.data.done = !this.data.done;
-				if(this.data.done) {
+				if (this.data.done) {
 					checkLabel.setIcon(ICON_CHECKED);
-				}
-				else {
+				} else {
 					checkLabel.setIcon(ICON_CIRCLE);
 				}
 
 //				System.out.println(result);
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 //		System.out.println("mouseEntered");
 		ready = true;
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 //		System.out.println("mouseExit");
 		ready = false;
-		
+
 	}
-	
-	
-	
-	
 
 }
 
 class TaskData {
-	final static String DEFAULT_DATE= "00000000";
+	final static String DEFAULT_DATE = "00000000";
 	final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	public String uid;
 	public String recent_completion_date = DEFAULT_DATE;
 	public String tmp_completion_date = DEFAULT_DATE;
 	public boolean done = false;
 	public String content;
-	
+
 	public boolean checkDone() {
-		boolean result =false;
+		boolean result = false;
 		Database db = new Database();
 		Calendar cal = Calendar.getInstance();
 		String newDate = sdf.format(cal.getTime());
-		
-		
-		if(db.checkDone(this.uid, !this.done, newDate)) {
+
+		if (db.checkDone(this.uid, !this.done, newDate)) {
 			this.done = !done;
 			tmp_completion_date = newDate;
 			result = true;
 		}
-		
+
 		return result;
 	}
 }

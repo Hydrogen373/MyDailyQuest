@@ -1,5 +1,6 @@
 package dqgui;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -13,25 +14,35 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
 
+import dqdatabase.Database;
+
 
 public class GUIManager {
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
 	ArrayList<TaskBox> tasks = new ArrayList<TaskBox>();
+	ArrayList<PinBox> pins = null;
+	JPanel pinsPanel = new JPanel();
 	JPanel tasksPanel = new JPanel();
 	CardLayout cards = new CardLayout();
 	
 	public GUIManager() {
 		mainPanel.setLayout(cards);
 
-//		mainPanel.add(new JLabel("Test GUI. Hello world!!"));
-		
 		JPanel card1 = new JPanel();
-		card1.setLayout(new GridLayout(2,1));
+		card1.setLayout(new BorderLayout());
+//		card1.setLayout(new GridLayout(2,1));
 		
-		JPanel pinsPanel = new JPanel();
+		pinsPanel.setLayout(new FlowLayout());
+		Database db = new Database();
+		pins = db.loadAllPin();
+		for(PinBox pin : pins) {
+			pinsPanel.add(pin);
+			System.out.println("!");
+		}
+
 		
-		JPanel menuPanel = new JPanel();
+//		JPanel menuPanel = new JPanel();
 		
 		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
 		for (TaskBox task : tasks) {
@@ -39,8 +50,8 @@ public class GUIManager {
 		}
 		tasksPanel.setBorder(new LineBorder(Color.black));
 		
-		card1.add(pinsPanel);
-		card1.add(tasksPanel);
+		card1.add(pinsPanel, BorderLayout.NORTH);
+		card1.add(tasksPanel, BorderLayout.CENTER);
 
 		mainPanel.add(card1);
 		mainFrame.add(mainPanel);
@@ -76,6 +87,8 @@ public class GUIManager {
 			tasksPanel.add(task);
 		}
 	}
+	
+
 
 }
 

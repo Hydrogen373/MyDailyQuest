@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import javax.print.attribute.HashAttributeSet;
 
+import dqgui.PinBox;
 import dqgui.TaskBox;
 
 import java.sql.*;
@@ -144,6 +145,29 @@ public class Database {
 		return result;
 	}
 
+	public ArrayList<PinBox> loadAllPin() {
+		ensureConnection();
+		ArrayList<PinBox> result = new ArrayList<PinBox>();
+
+		if (conn != null) {
+			try {
+				final String sql = "SELECT * FROM PinInfo";
+				stmt = conn.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					String name = rs.getString("name");
+					int activation = rs.getInt("activation");
+
+					result.add(new PinBox(name, activation == 1));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		closeAll();
+		return result;
+	}
+
 	public boolean setPriority(String name, int priority) {
 		boolean result = false;
 		ensureConnection();
@@ -213,7 +237,7 @@ public class Database {
 					stmt = conn.prepareStatement(sql);
 					stmt.setString(1, uid);
 					stmt.execute();
-					
+
 					sql = "SELECT recent_completion_date FROM Info WHERE uid is ?";
 					stmt = conn.prepareStatement(sql);
 					stmt.setString(1, uid);
@@ -386,6 +410,30 @@ public class Database {
 				e.printStackTrace();
 			}
 		}
+		closeAll();
+		return result;
+	}
+
+	public boolean activePin(String name, boolean activation) {
+		boolean result = false;
+		ensureConnection();
+		if (conn != null) {
+			try {
+				final String sql = "UPDATE PinInfo SET activation  = ? WHERE name is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setInt(1, activation ? 1 : 0);
+				stmt.setString(2, name);
+
+				stmt.executeUpdate();
+
+				conn.commit();
+				result = true;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 		closeAll();
 		return result;
 	}

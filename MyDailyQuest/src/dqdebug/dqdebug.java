@@ -15,13 +15,14 @@ public class dqdebug {
 		db.removeTask("debug");
 		db.addTask("debug", "debugtest05");
 		
-		db.removePin("highpin");
-		db.removePin("lowerPin");
-		db.addPin("highpin");
-		db.addPin("lowerPin");
+//		db.removePin("highpin");
+//		db.removePin("lowerPin");
+//		db.addPin("highpin");
+//		db.addPin("lowerPin");
 		
 		db.setPin("debug", "highpin");
 		db.setPin("2", "highpin");
+		db.setPin("2", "lowerPin");
 		db.setPin("3", "lowerPin");
 		
 		

@@ -54,7 +54,6 @@ public class TaskBox extends JPanel implements MouseListener {
 //		this.setLayout(new GridLayout());
 //		this.setLayout(new BoxLayout(checkLabel, BoxLayout.X_AXIS));
 //		this.setAlignmentX(LEFT_ALIGNMENT);
-		this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 //		this.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
 
 
@@ -72,6 +71,7 @@ public class TaskBox extends JPanel implements MouseListener {
 //		this.setBorder(new BevelBorder(BevelBorder.RAISED));
 //		this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 //		this.setBorder(BorderFactory.createEmptyBorder(0,10,5,10));
+		this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 10));
 	}
 	
 	public String getUID() {
@@ -101,7 +101,7 @@ public class TaskBox extends JPanel implements MouseListener {
 		// TODO Auto-generated method stub
 		if(!ready) return;
 		if(e.getButton()==MouseEvent.BUTTON1) {
-			System.out.println("check!");
+//			System.out.println("check!");
 			Database db = new Database();
 			String result = db.checkDone(getUID(), !getDone());
 			if(result != null) {
@@ -114,7 +114,7 @@ public class TaskBox extends JPanel implements MouseListener {
 					checkLabel.setIcon(ICON_CIRCLE);
 				}
 
-				System.out.println(result);
+//				System.out.println(result);
 			}
 		}
 		
@@ -122,14 +122,14 @@ public class TaskBox extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+//		System.out.println("mouseEntered");
 		ready = true;
 		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
+//		System.out.println("mouseExit");
 		ready = false;
 		
 	}

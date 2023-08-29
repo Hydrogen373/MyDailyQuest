@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.UUID;
 
 import javax.print.attribute.HashAttributeSet;
 
@@ -119,10 +120,10 @@ public class Database {
 		closeAll();
 		return result;
 	}
-
-	public ArrayList<TaskBox> loadAllInfo() {
+	
+	public HashMap<String, TaskBox> loadAllTask(){
 		ensureConnection();
-		ArrayList<TaskBox> result = new ArrayList<TaskBox>();
+		HashMap<String, TaskBox> result = new HashMap<>();
 		if (conn != null) {
 			try {
 				final String sql = "SELECT * FROM Info";
@@ -131,11 +132,10 @@ public class Database {
 				while (rs.next()) {
 					String uid = rs.getString("uid");
 					String content = rs.getString("content");
-					String recent_completion_date = rs.getString("recent_completion_date");
 					boolean done = (rs.getInt("done") == 1);
-					String tmp_completion_date = rs.getString("tmp_completion_date");
+					String date = rs.getString((done ? "tmp_completion_date" : "recent_completion_date"));
 
-					result.add(new TaskBox(uid, content, recent_completion_date, done, tmp_completion_date));
+					result.put(uid, new TaskBox(uid, content, date, done));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -277,6 +277,10 @@ public class Database {
 		}
 		closeAll();
 		return result;
+	}
+	
+	static public String generateUID() {
+		return UUID.randomUUID().toString();
 	}
 
 	public boolean removeTask(String uid) {
@@ -438,8 +442,8 @@ public class Database {
 		return result;
 	}
 
-	public ArrayList<TaskBox> sort(ArrayList<TaskBox> tasks) {
-		ArrayList<TaskBox> result = null;
+	public ArrayList<String> sort(ArrayList<String> uids) {
+		ArrayList<String> result = null;
 		ensureConnection();
 		if (conn != null) {
 			try {
@@ -459,29 +463,33 @@ public class Database {
 				for (String name : priorities) {
 					sql = "SELECT * FROM Pin WHERE uid is ? AND name is ?";
 					stmt = conn.prepareStatement(sql);
-					ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falsesList = new ArrayList<TaskBox>();
-					for (TaskBox task : tasks) {
-						stmt.setString(1, task.getUID());
+					ArrayList<String> trueList = new ArrayList<String>(), falseList = new ArrayList<String>();
+					for (String uid : uids) {
+						stmt.setString(1, uid);
 						stmt.setString(2, name);
 						rs = stmt.executeQuery();
 						if (rs.next()) {
-							trueList.add(task);
+							trueList.add(uid);
 						} else {
-							falsesList.add(task);
+							falseList.add(uid);
 						}
 					}
-					trueList.addAll(falsesList);
-					tasks = trueList;
+					trueList.addAll(falseList);
+					uids = trueList;
 				}
 
 				priorities = null;
 
-				ArrayList<TaskBox> trueList = new ArrayList<TaskBox>(), falseList = new ArrayList<TaskBox>();
-				for (TaskBox task : tasks) {
-					if (!task.getDone()) {
-						trueList.add(task);
+				sql = "SELECT * FROM Info WHERE uid is ? AND done is 0";
+				stmt = conn.prepareStatement(sql);
+				ArrayList<String> trueList = new ArrayList<String>(), falseList = new ArrayList<String>();
+				for (String uid : uids) {
+					stmt.setString(1, uid);
+					rs = stmt.executeQuery();
+					if (rs.next()) {
+						trueList.add(uid);
 					} else {
-						falseList.add(task);
+						falseList.add(uid);
 					}
 				}
 				trueList.addAll(falseList);
@@ -498,4 +506,5 @@ public class Database {
 		return result;
 	}
 
+	
 }

@@ -3,14 +3,22 @@ package dqgui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import javax.print.StreamPrintService;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
 
@@ -21,6 +29,7 @@ public class GUIManager {
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
 	ArrayList<TaskBox> tasks = new ArrayList<TaskBox>();
+	HashMap<String, TaskBox> uidToBox;
 	ArrayList<PinBox> pins = null;
 	JPanel pinsPanel = new JPanel();
 	JPanel tasksPanel = new JPanel();
@@ -38,18 +47,16 @@ public class GUIManager {
 		pins = db.loadAllPin();
 		for(PinBox pin : pins) {
 			pinsPanel.add(pin);
-			System.out.println("!");
 		}
 
 		
+		// TODO add menupanel
 //		JPanel menuPanel = new JPanel();
 		
 		JPanel center = new JPanel();
 //		tasksPanel.setLayout(new GridLayout(0,1, 10, 10));
 		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS));
-		for (TaskBox task : tasks) {
-			tasksPanel.add(task);
-		}
+		// TODO db loadAllTask, resetTaskPanel
 		tasksPanel.setBorder(new LineBorder(Color.black));
 		center.add(tasksPanel);
 		
@@ -82,22 +89,52 @@ public class GUIManager {
 		mainFrame.setLocationRelativeTo(null);
 	}
 	
-	public void resetTasks(ArrayList<TaskBox> newTasks) {
+	public void setMap(HashMap<String, TaskBox> uidToBox) {
+		this.uidToBox = uidToBox;
+	}
+	
+	public void resetTasksPanel(ArrayList<String> uids) {
 		tasksPanel.removeAll();
-		tasks = newTasks;
-		
-		for(TaskBox task : tasks) {
-			tasksPanel.add(task);
+		for(String uid : uids) {
+			tasksPanel.add(uidToBox.get(uid));
 		}
+		tasksPanel.add(getAdditionalTask());
+	}
+	
+	JPanel getAdditionalTask() {
+		JPanel additionalTask = new JPanel();
+		JLabel label = new JLabel("Add New Task");
+		JTextField content = new JTextField();
+				
+		ActionListener action = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(content.getText().strip().equals("")) {
+					return;
+				}
+				String uid = new String(Database.generateUID());
+				Database db = new Database();
+				db.addTask(uid, content.getText());
+				content.setText("");
+			}
+		};
+		
+		content.addActionListener(action);
+		
+		additionalTask.add(label);
+		additionalTask.add(content);
+		SpringLayout spring = new SpringLayout();
+		spring.putConstraint(SpringLayout.WEST, label, 5, SpringLayout.WEST, additionalTask);
+		spring.putConstraint(SpringLayout.NORTH, label, 5, SpringLayout.NORTH, additionalTask);
+		spring.putConstraint(SpringLayout.WEST, content, 5, SpringLayout.EAST, label);
+		spring.putConstraint(SpringLayout.NORTH, content, 5, SpringLayout.NORTH, additionalTask);
+		spring.putConstraint(SpringLayout.EAST, additionalTask, 5, SpringLayout.EAST, content);
+//		spring.putConstraint(SpringLayout.SOUTH, additionalTask, 5, SpringLayout.SOUTH, content);
+		additionalTask.setLayout(spring);
+		return additionalTask;
 	}
 	
 
 
-}
-
-
-class MenuPanel extends JPanel{
-	MenuPanel(){
-		
-	}
 }

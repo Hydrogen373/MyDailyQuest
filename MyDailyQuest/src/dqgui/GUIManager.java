@@ -110,12 +110,13 @@ public class GUIManager {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("action");
 				if(content.getText().strip().equals("")) {
 					return;
 				}
 				String uid = new String(Database.generateUID());
 				Database db = new Database();
-				db.addTask(uid, content.getText());
+				db.addTask(uid, content.getText().strip());
 				content.setText("");
 			}
 		};

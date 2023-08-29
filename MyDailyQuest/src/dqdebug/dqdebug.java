@@ -3,8 +3,11 @@ package dqdebug;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +27,7 @@ import dqgui.TaskBox;
 
 public class dqdebug {
 	public static void main(String[] args) {
-		defaultPage();
+		flexibleTFPage();
 	}
 	
 	static void defaultPage() {
@@ -131,6 +134,74 @@ public class dqdebug {
 		mainFrame.setSize(400,400);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);
+	}
+	
+	static void flexibleTFPage() {
+		JFrame mainFrame = new JFrame();
+		
+		JPanel mainPanel = new JPanel();
+		
+		JLabel label = new JLabel("TextEdit");
+		JTextField tf = new JTextField();
+		
+		tf.setVisible(false);
+		
+		mainPanel.add(label);
+		mainPanel.add(tf);
+		
+		ActionListener action = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("action");
+				label.setText(tf.getText());
+				tf.setVisible(false);
+				label.setVisible(true);
+			}
+		};
+		
+
+
+		MouseListener mouse = new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				tf.setText(label.getText());
+				label.setVisible(false);
+				tf.setVisible(true);
+				
+			}
+		};
+		
+		label.addMouseListener(mouse);
+		tf.addActionListener(action);
+		mainFrame.add(mainPanel);
+		mainFrame.setVisible(true);
+		mainFrame.setSize(800, 800);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
+		
+		
+		
 	}
 
 }

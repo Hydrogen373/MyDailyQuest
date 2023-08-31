@@ -2,6 +2,7 @@ package dqgui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -17,9 +18,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import dqdatabase.Database;
+import dqdatabase.DqDatabase;
 
-public class TaskBox extends JPanel{
+public class TaskBox extends JPanel {
+	static Font font_date = new Font(null, 0, 15);
+	static Font font_content = new Font(null, Font.BOLD, 18);
+	static Font font_content_done = new Font(null, Font.ITALIC, 18);
+
 	String taskUID;
 	boolean done;
 	JLabel dateLabel = new JLabel();
@@ -30,7 +35,6 @@ public class TaskBox extends JPanel{
 	static final ImageIcon ICON_CIRCLE = new ImageIcon("icon/circle.png");
 	static final ImageIcon ICON_CHECKED = new ImageIcon("icon/check.png");
 
-
 	public TaskBox(String uid, String content, String date, boolean done) {
 		this.taskUID = uid;
 		this.dateLabel.setText(date);
@@ -38,18 +42,25 @@ public class TaskBox extends JPanel{
 		this.done = done;
 		checkLabel.setIcon(this.done ? ICON_CHECKED : ICON_CIRCLE);
 
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+		this.setLayout(layout);
 		this.setBorder(new LineBorder(Color.black));
 		this.dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		this.dateLabel.setFont(font_date);
 		this.contentLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		this.contentLabel.setFont(done ? font_content_done : font_content);
 		this.add(this.dateLabel);
 		this.add(this.checkLabel);
 		this.add(this.contentLabel);
 		listener.setBox(this);
 		this.addMouseListener(listener);
 
-		this.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-				Integer.max(contentLabel.getPreferredSize().height, checkLabel.getPreferredSize().height + 15)));
+		int preferredHeight = Integer.max(contentLabel.getPreferredSize().height,
+				checkLabel.getPreferredSize().height + 15);
+		this.setMaximumSize(new Dimension(Integer.MAX_VALUE, preferredHeight));
+		this.setPreferredSize(new Dimension(layout.preferredLayoutSize(this).width, preferredHeight));
+		this.setMinimumSize(this.getPreferredSize());
+
 	}
 
 	public String getUID() {
@@ -65,15 +76,17 @@ public class TaskBox extends JPanel{
 	}
 
 	public void checkEvent() {
-		Database db = new Database();
+		DqDatabase db = new DqDatabase();
 		String result = db.checkDone(getUID(), !getDone());
 		if (result != null) {
 			this.dateLabel.setText(result);
 			this.done = !this.done;
 			if (this.done) {
 				checkLabel.setIcon(ICON_CHECKED);
+				contentLabel.setFont(font_content_done);
 			} else {
 				checkLabel.setIcon(ICON_CIRCLE);
+				contentLabel.setFont(font_content);
 			}
 		}
 	}
@@ -93,13 +106,13 @@ class TaskMouseListener implements MouseListener {
 		if (!ready)
 			return;
 		if (e.getButton() == MouseEvent.BUTTON1) {
-				taskbox.checkEvent();
-			}
+			taskbox.checkEvent();
+		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		
+
 	}
 
 	@Override
@@ -116,4 +129,3 @@ class TaskMouseListener implements MouseListener {
 	public void mousePressed(MouseEvent e) {
 	}
 }
-

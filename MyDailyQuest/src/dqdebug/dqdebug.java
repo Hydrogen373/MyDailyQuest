@@ -2,6 +2,8 @@ package dqdebug;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -14,45 +16,31 @@ import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import dqdatabase.Database;
+import dqdatabase.DqDatabase;
 import dqgui.DqCalendar;
 import dqgui.GUIManager;
+import dqgui.SwitchingTextField;
 import dqgui.TaskBox;
 
 public class dqdebug {
+	static JFrame mainFrame = null;
 	public static void main(String[] args) {
-		flexibleTFPage();
+		defaultPage();
 	}
 	
 	static void defaultPage() {
-		Database db = new Database();
-		db.regenerate("2", "20220202");
-		db.removeTask("debug");
-		db.addTask("debug", "debugtest05");
-		
-		
-		db.setPin("debug", "highpin");
-		db.setPin("2", "highpin");
-		db.setPin("2", "lowerPin");
-		db.setPin("3", "lowerPin");
-		
 		GUIManager gui = new GUIManager();
 		
-		HashMap<String, TaskBox> uidToBox = db.loadAllTask();
-		ArrayList<String> uids = db.sort(new ArrayList<String>(uidToBox.keySet()));
-
-		gui.setMap(uidToBox);
-		gui.resetTasksPanel(uids);
-		
 		gui.show();
-		
-		db.unsetPin("3", "lowerPin");
 		
 		System.out.println("closed!");
 		return;
@@ -138,8 +126,67 @@ public class dqdebug {
 	
 	static void flexibleTFPage() {
 		JFrame mainFrame = new JFrame();
+		MouseListener fraeListener = new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("frame clicked");
+				
+			}
+		};
 		
 		JPanel mainPanel = new JPanel();
+//		mainPanel.setFocusable(true);
+		MouseListener panelListener = new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("panel clicked");
+				mainPanel.requestFocusInWindow();
+			}
+		};
+		mainPanel.addMouseListener(panelListener);
 		
 		JLabel label = new JLabel("TextEdit");
 		JTextField tf = new JTextField();
@@ -153,13 +200,32 @@ public class dqdebug {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("action");
 				label.setText(tf.getText());
 				tf.setVisible(false);
 				label.setVisible(true);
+				
+
 			}
 		};
 		
+		
+		
+		FocusListener tfFocusListener = new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				System.out.println("focus lost");
+				action.actionPerformed(null);
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				System.out.println("focus gained");
+				
+			}
+		};
+		
+		tf.addFocusListener(tfFocusListener);
 
 
 		MouseListener mouse = new MouseListener() {
@@ -188,6 +254,7 @@ public class dqdebug {
 				tf.setText(label.getText());
 				label.setVisible(false);
 				tf.setVisible(true);
+				tf.requestFocusInWindow();
 				
 			}
 		};
@@ -204,4 +271,50 @@ public class dqdebug {
 		
 	}
 
+	static void switchingTfPage() {
+		SwitchingTextField stf = new SwitchingTextField();
+		JFrame mainFrame = new JFrame();
+		mainFrame.add(stf);
+		
+		mainFrame.setVisible(true);
+		mainFrame.setSize(800, 800);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
+	}
+	
+	static void setup() {
+		mainFrame = new JFrame();
+	}
+	static void show() {
+		mainFrame.setVisible(true);
+		mainFrame.setSize(800, 800);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
+	}
+	
+	static void scrollboxPage() {
+		setup();
+		
+		DqDatabase db = new DqDatabase();
+		HashMap<String, TaskBox> uidToTaskbox = db.loadAllTask();
+		
+		
+		JPanel taskPane = new JPanel();
+		BoxLayout layout_taskPane = new BoxLayout(taskPane, BoxLayout.Y_AXIS);
+//		GridLayout layout_taskPane = new GridLayout(0, 1);
+		taskPane.setLayout(layout_taskPane);
+		for(String key : uidToTaskbox.keySet()) {
+			taskPane.add(uidToTaskbox.get(key));
+		}
+//		taskPane.setPreferredSize(new Dimension(0, 10000));
+		taskPane.setPreferredSize(layout_taskPane.preferredLayoutSize(taskPane));
+		taskPane.setBorder(BorderFactory.createLineBorder(Color.red));
+		
+		JScrollPane scroll = new JScrollPane(taskPane);
+		
+		
+		mainFrame.add(scroll);
+		mainFrame.pack();
+		show();
+	}
 }

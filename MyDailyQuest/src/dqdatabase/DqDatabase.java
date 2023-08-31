@@ -17,7 +17,7 @@ import dqgui.TaskBox;
 
 import java.sql.*;
 
-public class Database {
+public class DqDatabase {
 	private Connection conn = null;
 	private static final String DB_ADDR = "db/main_database.db";
 	private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");

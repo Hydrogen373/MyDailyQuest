@@ -7,7 +7,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import dqdatabase.Database;
+import dqdatabase.DqDatabase;
 
 public class PinBox extends JPanel implements MouseListener {
 	static final ImageIcon ICON_CIRCLE = new ImageIcon("icon/circle.png");
@@ -49,7 +49,7 @@ public class PinBox extends JPanel implements MouseListener {
 		if (!mouseInside)
 			return;
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			Database db = new Database();
+			DqDatabase db = new DqDatabase();
 			if(db.activePin(pinName.getText(), !this.activation)) {
 				this.activation = !this.activation;
 				activationLabel.setIcon(this.activation ? ICON_CHECKED : ICON_CIRCLE);

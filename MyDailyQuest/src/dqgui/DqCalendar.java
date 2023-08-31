@@ -20,6 +20,7 @@ public class DqCalendar extends JPanel {
 	static ArrayList<DqCalendarCell> weekCells = null;
 	static ArrayList<DqCalendarCell> dayCells = null;
 	static HashMap<Integer, Boolean> changeMap = null;
+	static HashMap<Integer, DqCalendarCell> day2cell = null;
 
 	private DqCalendar() {
 	}
@@ -28,38 +29,42 @@ public class DqCalendar extends JPanel {
 		if (instance == null) {
 			instance = new DqCalendar();
 
-			weekCells = new ArrayList<>();
-			dayCells = new ArrayList<>();
+//			weekCells = new ArrayList<>();
+//			dayCells = new ArrayList<>();
+			day2cell = new HashMap<Integer, DqCalendarCell>();
 			changeMap = new HashMap<>();
 
 			instance.setLayout(new GridLayout(6, 7, 5, 5));
 			{
-				weekCells.add(new DqCalendarCell("S", DqDay.sun));
-				weekCells.add(new DqCalendarCell("M", DqDay.mon));
-				weekCells.add(new DqCalendarCell("T", DqDay.tue));
-				weekCells.add(new DqCalendarCell("W", DqDay.wed));
-				weekCells.add(new DqCalendarCell("T", DqDay.thu));
-				weekCells.add(new DqCalendarCell("F", DqDay.fri));
-				weekCells.add(new DqCalendarCell("S", DqDay.sat));
+				day2cell.put(DqDay.sun, new DqCalendarCell("S", DqDay.sun));
+				day2cell.put(DqDay.mon, new DqCalendarCell("M", DqDay.mon));
+				day2cell.put(DqDay.tue, new DqCalendarCell("T", DqDay.tue));
+				day2cell.put(DqDay.wed, new DqCalendarCell("W", DqDay.wed));
+				day2cell.put(DqDay.thu, new DqCalendarCell("T", DqDay.thu));
+				day2cell.put(DqDay.fri, new DqCalendarCell("F", DqDay.fri));
+				day2cell.put(DqDay.sat, new DqCalendarCell("S", DqDay.sat));
 			}
 			for (int i = 1; i < 32; i++) {
-				dayCells.add(new DqCalendarCell(Integer.toString(i), i));
+				day2cell.put(i, new DqCalendarCell(Integer.toString(i), i));
 			}
 
-			for (DqCalendarCell cell : weekCells) {
-				instance.add(cell);
+			for(int i=32;i<39;i++) {
+				instance.add(day2cell.get(i));
 			}
-			for (DqCalendarCell cell : dayCells) {
-				instance.add(cell);
+			for (int i=1;i<32;i++) {
+				instance.add(day2cell.get(i));
 			}
 			
 		} else {
 
-			for (DqCalendarCell cell : weekCells) {
-				cell.init();
-			}
-			for (DqCalendarCell cell : dayCells) {
-				cell.init();
+//			for (DqCalendarCell cell : weekCells) {
+//				cell.init();
+//			}
+//			for (DqCalendarCell cell : dayCells) {
+//				cell.init();
+//			}
+			for (Integer i : day2cell.keySet()) {
+				day2cell.get(i).init();
 			}
 			changeMap.clear();
 
@@ -67,6 +72,11 @@ public class DqCalendar extends JPanel {
 		return instance;
 	}
 
+	public static void setActive(ArrayList<Integer> active) {
+		for (Integer i : active) {
+			
+		}
+	}
 }
 
 class DqDay {
@@ -91,6 +101,7 @@ class DqCalendarCell extends JLabel implements MouseListener {
 		this.setFont(font);
 		this.addMouseListener(this);
 		this.setOpaque(true);
+		this.setBackground(Color.white);
 		
 		this.id = id;
 	}
@@ -136,7 +147,7 @@ class DqCalendarCell extends JLabel implements MouseListener {
 			}
 			this.checkEvent();
 			
-//			debug
+//			XXX debug
 			{
 				System.out.println("#################################");
 				for(Integer id : DqCalendar.changeMap.keySet()) {

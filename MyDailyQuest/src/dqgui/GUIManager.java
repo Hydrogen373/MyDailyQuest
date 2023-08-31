@@ -24,98 +24,162 @@ import javax.swing.SpringLayout;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
+import org.sqlite.core.DB;
+
 import dqdatabase.DqDatabase;
 
 public class GUIManager {
-	JFrame mainFrame = null;
-	JPanel mainPanel = null;
-	CardLayout pages = null;
+	static GUIManager instance = null;
 
-	HashMap<String, TaskBox> uid2task = null;
-	JPanel tasksPanel = null;
-	ArrayList<String> sortedUids = null;
+	static JFrame mainFrame = null;
+	static JPanel mainPanel = null;
+	static CardLayout pages = null;
+
+	static HashMap<String, TaskBox> uid2task = null;
+	static JPanel tasksPanel = null;
+	static ArrayList<String> sortedUids = null;
 
 	// TODO replace with HashMap pinName2pinPanel
-	ArrayList<PinBox> pins = null;
-	JPanel pinsPanel = new JPanel();
+	static ArrayList<PinBox> pins = null;
+	static JPanel pinsPanel = new JPanel();
 
-	public GUIManager() {
+	private GUIManager() {
 		mainFrame = new JFrame();
 		mainPanel = new JPanel();
 		pages = new CardLayout();
 
 		mainPanel.setLayout(pages);
+
 		JPanel page1 = new JPanel();
 		initPage1(page1);
+		
+		JPanel page2 = new JPanel();
+		initPage2(page2);
+		
 
 		mainPanel.add(page1);
+		mainPanel.add(page2);
 		mainFrame.add(mainPanel);
 	}
+	
+	static public GUIManager getInstance() {
+		if (instance == null) {
+			instance = new GUIManager();
+		}
 
-	private void initPage1(JPanel page1) {
+		return instance;
+	}
+	
+	static public void init() {
+		getInstance();
+		show();
+	}
+	
+
+	static private void initPage1(JPanel page1) {
 		page1.setLayout(new BorderLayout());
 
 		DqDatabase db = new DqDatabase();
 
 		// page1 north
-			// init pinsPanel
-			pinsPanel.setLayout(new FlowLayout());
-			pins = db.loadAllPin();
-			for (PinBox pin : pins) {
-				pinsPanel.add(pin);
-			}
-			// TODO add menupanel
+		// init pinsPanel
+		FlowLayout layout_pinsPanel = new FlowLayout();
+		pinsPanel.setLayout(layout_pinsPanel);
+		pins = db.loadAllPin();
+		for (PinBox pin : pins) {
+			pinsPanel.add(pin);
+		}
+		pinsPanel.setBackground(Color.cyan); // XXX
+		// TODO set layout be able to show every pin or '...' button
+		// TODO add menupanel
 
 		// page1 center
-			// init taskPanel
-				// init uid2task
-				uid2task = db.loadAllTask();
-				// init sortedUids
-				sortUids();
-			tasksPanel = new JPanel();
-			tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS));
-			// XXX debug
-			tasksPanel.setBorder(new LineBorder(Color.black));
-			resetTasksPanel(sortedUids);
+		// init taskPanel
+		// init uid2task
+		uid2task = db.loadAllTask();
+		// init sortedUids
+		sortUids();
+		tasksPanel = new JPanel();
+		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS)); 
+		tasksPanel.setBorder(new LineBorder(Color.black)); // XXX debug
+		resetTasksPanel(sortedUids);
 		JScrollPane center = new JScrollPane(tasksPanel);
 
 		// page1 south
-			// TODO addTask to db using additionalTaskpanel
-			SwitchingTextField additionalTaskPanel = new SwitchingTextField();
+		// TODO addTask to db using additionalTaskpanel
+		SwitchingTextField additionalTaskPanel = new SwitchingTextField(instance);
 
 		page1.add(pinsPanel, BorderLayout.NORTH);
 		page1.add(center, BorderLayout.CENTER);
 		page1.add(additionalTaskPanel, BorderLayout.SOUTH);
 	}
 
-	public void show() {
+	static private void initPage2(JPanel page2) {
+		page2.setLayout(new BorderLayout());
+		
+		// center
+		JPanel center = new JPanel();
+		// calendar
+		DqCalendar calendar = DqCalendar.getInstance();
+		// TODO pins
+		center.add(calendar);
+
+		page2.add(center, BorderLayout.CENTER);
+	}
+
+	static public void show() {
 		mainFrame.setVisible(true);
 		mainFrame.setSize(425, 600);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);
 	}
 
-	public void setMap(HashMap<String, TaskBox> uidToBox) {
-		this.uid2task = uidToBox;
+	static public void setMap(HashMap<String, TaskBox> uidToBox) {
+		uid2task = uidToBox;
 	}
 
-	void resetTasksPanel(ArrayList<String> uids) {
+	static void resetTasksPanel(ArrayList<String> uids) {
 		tasksPanel.removeAll();
 		for (String uid : uids) {
 			tasksPanel.add(uid2task.get(uid));
 		}
 	}
-	
-	void sortUids() {
+
+	static void sortUids() {
 		DqDatabase db = new DqDatabase();
-		this.sortedUids = db.sort(new ArrayList<String>(uid2task.keySet()));
+		sortedUids = db.sort(new ArrayList<String>(uid2task.keySet()));
 	}
-	
-	public void refresh_taskPanel() {
+
+	static public void refresh_taskPanel() {
 		sortUids();
 		resetTasksPanel(sortedUids);
 	}
 
+	static public void addTask(String content) {
+		String taskId = DqDatabase.generateUID();
 
+		DqDatabase db = new DqDatabase();
+		if (!db.addTask(taskId, content)) {
+			// Database fail
+			return;
+		}
+		TaskBox taskBox = new TaskBox(taskId, content, DqDatabase.DEFAULT_DATE, false);
+		uid2task.put(taskId, taskBox);
+		tasksPanel.add(taskBox);
+	}
+	
+	static public void removeTask(String taskId) {
+		if(!uid2task.keySet().contains(taskId)) {
+			// fail
+			return;
+		}
+		DqDatabase db = new DqDatabase();
+		db.removeTask(taskId);
+		uid2task.get(taskId).setVisible(false);
+		tasksPanel.remove(uid2task.get(taskId));
+	}
 
+	static public void nextPage() {
+		pages.next(mainPanel);
+	}
 }

@@ -23,7 +23,7 @@ public class DqDatabase {
 	private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	private PreparedStatement stmt = null;
 
-	private static final String DEFAULT_DATE = "00000000";
+	public static final String DEFAULT_DATE = "00000000";
 
 	private static ArrayList<String> priorities;
 
@@ -288,10 +288,13 @@ public class DqDatabase {
 		ensureConnection();
 		if (conn != null) {
 			try {
-				// TODO Delete from RegenRult
-//				 final String sql = "DELETE FROM RegenRule WHERE uid is ?";
+				String sql = "DELETE FROM RegenRule WHERE uid is ?";
+				stmt = conn.prepareStatement(sql);
+				stmt.setString(1, uid);
+				stmt.executeUpdate();
+				stmt.close();
 
-				String sql = "DELETE FROM Info WHERE uid is ?";
+				sql = "DELETE FROM Info WHERE uid is ?";
 				stmt = conn.prepareStatement(sql);
 				stmt.setString(1, uid);
 				stmt.executeUpdate();

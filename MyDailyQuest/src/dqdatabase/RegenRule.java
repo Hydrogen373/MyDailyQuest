@@ -18,4 +18,7 @@ public class RegenRule{
 		}
 	}
 	
+	// TODO regen_coolTime
+	// TODO early remind
+	
 }

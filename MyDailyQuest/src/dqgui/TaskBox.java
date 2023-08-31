@@ -14,7 +14,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
@@ -108,6 +110,10 @@ class TaskMouseListener implements MouseListener {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			taskbox.checkEvent();
 		}
+		else {
+			TaskPopupMenu popup = TaskPopupMenu.getInstance(taskbox.getUID());
+			popup.show(taskbox, e.getX(), e.getY());
+		}
 	}
 
 	@Override
@@ -128,4 +134,53 @@ class TaskMouseListener implements MouseListener {
 	@Override
 	public void mousePressed(MouseEvent e) {
 	}
+}
+
+class TaskPopupMenu extends JPopupMenu {
+	static TaskPopupMenu instance = null;
+	static String taskId = null;
+
+	private TaskPopupMenu(){
+		JMenuItem menu_revise = new JMenuItem("revise");
+		menu_revise.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (taskId == null) {
+					// fail
+					return;
+				}
+				// TODO function: revise task
+				// TODO setting calendar
+				// goto next page
+				GUIManager.nextPage();
+
+			}
+		});
+
+		JMenuItem menu_delete = new JMenuItem("delete");
+		menu_delete.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (taskId == null) {
+					// fail
+					return;
+				}
+				// TODO function: delete task
+				GUIManager.removeTask(taskId);
+			}
+		});
+		
+		this.add(menu_revise);
+		this.add(menu_delete);
+	}
+	
+	static public TaskPopupMenu getInstance(String uid) {
+		if(instance==null) {
+			instance = new TaskPopupMenu();
+		}
+		taskId = uid;
+		
+		return instance;
+	}
+	
 }

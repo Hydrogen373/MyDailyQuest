@@ -45,6 +45,8 @@ public class GUIManager {
 
 	private GUIManager() {
 		mainFrame = new JFrame();
+		mainFrame.setSize(425, 600);
+
 		mainPanel = new JPanel();
 		pages = new CardLayout();
 
@@ -52,16 +54,15 @@ public class GUIManager {
 
 		JPanel page1 = new JPanel();
 		initPage1(page1);
-		
+
 		JPanel page2 = new JPanel();
 		initPage2(page2);
-		
 
 		mainPanel.add(page1);
 		mainPanel.add(page2);
 		mainFrame.add(mainPanel);
 	}
-	
+
 	static public GUIManager getInstance() {
 		if (instance == null) {
 			instance = new GUIManager();
@@ -69,12 +70,11 @@ public class GUIManager {
 
 		return instance;
 	}
-	
+
 	static public void init() {
 		getInstance();
 		show();
 	}
-	
 
 	static private void initPage1(JPanel page1) {
 		page1.setLayout(new BorderLayout());
@@ -100,7 +100,7 @@ public class GUIManager {
 		// init sortedUids
 		sortUids();
 		tasksPanel = new JPanel();
-		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS)); 
+		tasksPanel.setLayout(new BoxLayout(tasksPanel, BoxLayout.Y_AXIS));
 		tasksPanel.setBorder(new LineBorder(Color.black)); // XXX debug
 		resetTasksPanel(sortedUids);
 		JScrollPane center = new JScrollPane(tasksPanel);
@@ -116,7 +116,7 @@ public class GUIManager {
 
 	static private void initPage2(JPanel page2) {
 		page2.setLayout(new BorderLayout());
-		
+
 		// center
 		JPanel center = new JPanel();
 		// calendar
@@ -129,7 +129,6 @@ public class GUIManager {
 
 	static public void show() {
 		mainFrame.setVisible(true);
-		mainFrame.setSize(425, 600);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);
 	}
@@ -167,9 +166,9 @@ public class GUIManager {
 		uid2task.put(taskId, taskBox);
 		tasksPanel.add(taskBox);
 	}
-	
+
 	static public void removeTask(String taskId) {
-		if(!uid2task.keySet().contains(taskId)) {
+		if (!uid2task.keySet().contains(taskId)) {
 			// fail
 			return;
 		}
@@ -182,4 +181,23 @@ public class GUIManager {
 	static public void nextPage() {
 		pages.next(mainPanel);
 	}
+
+	public void test() {
+		mainFrame.setSize(739 + 10, 739);
+		System.out.println("GUIManager test");
+		for (int i = 0; i < pins.size(); i++) {
+			System.out.println("pin [" + i + "]: " + (pins.get(i).isVisible() ? "visible" : "invisible"));
+		}
+
+		Dimension min = pinsPanel.getLayout().minimumLayoutSize(pinsPanel);
+		Dimension pre = pinsPanel.getLayout().preferredLayoutSize(pinsPanel);
+		Dimension now = pinsPanel.getSize();
+		Dimension noww = mainFrame.getSize();
+
+		System.out.println("min " + min.width + "\npre " + pre.width + "\nnow " + now.width);
+		System.out.println("noww " + noww.width);
+		FlowLayout layout = (FlowLayout) pinsPanel.getLayout();
+		System.out.println(layout.getHgap());
+	}
+
 }

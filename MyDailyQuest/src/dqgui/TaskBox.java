@@ -92,7 +92,6 @@ public class TaskBox extends JPanel {
 			}
 		}
 	}
-
 }
 
 class TaskMouseListener implements MouseListener {
@@ -182,5 +181,4 @@ class TaskPopupMenu extends JPopupMenu {
 		
 		return instance;
 	}
-	
 }

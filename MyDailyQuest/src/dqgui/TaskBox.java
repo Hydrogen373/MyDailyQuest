@@ -9,6 +9,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -79,14 +81,16 @@ public class TaskBox extends JPanel {
 
 	public void checkEvent() {
 		DqDatabase db = new DqDatabase();
-		String result = db.checkDone(getUID(), !getDone());
-		if (result != null) {
-			this.dateLabel.setText(result);
+		String dateText = db.checkDone(getUID(), !getDone());
+		if (dateText != null) {
+			this.dateLabel.setText(dateText);
 			this.done = !this.done;
 			if (this.done) {
+				// done
 				checkLabel.setIcon(ICON_CHECKED);
 				contentLabel.setFont(font_content_done);
 			} else {
+				// not done
 				checkLabel.setIcon(ICON_CIRCLE);
 				contentLabel.setFont(font_content);
 			}
@@ -149,7 +153,16 @@ class TaskPopupMenu extends JPopupMenu {
 					return;
 				}
 				// TODO function: revise task
+				DqCalendar.getInstance();
+				DqDatabase db = new DqDatabase();
 				// TODO setting calendar
+				DqCalendar.setUid(taskId);
+				ArrayList<Integer> rules = db.loadActiveRule(taskId);
+				//XXX debug
+				for(int rule : rules) {
+					System.out.println(rule);
+				}
+				DqCalendar.setActive(rules);
 				// goto next page
 				GUIManager.nextPage();
 

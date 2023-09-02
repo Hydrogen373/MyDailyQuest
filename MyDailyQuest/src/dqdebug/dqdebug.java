@@ -11,8 +11,12 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,7 +47,7 @@ public class dqdebug {
 	static void defaultPage() {
 		GUIManager gui = GUIManager.getInstance();
 
-		gui.show();
+		gui.start();
 
 		System.out.println("closed!");
 		return;
@@ -312,25 +316,25 @@ public class dqdebug {
 		JMenuItem menuItem = new JMenuItem("item");
 		menuItem.setBackground(Color.cyan);
 		pop.add(menuItem);
-		
+
 		MouseListener mouse = new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 			}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 			}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 			}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 			}
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				System.out.println("mouse clicked!");
@@ -344,4 +348,20 @@ public class dqdebug {
 		show();
 	}
 
+	static void dateformat() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Calendar cal = Calendar.getInstance();
+		System.out.println(cal.getTime().toString());
+		String dateStr = sdf.format(cal.getTime());
+		System.out.println(dateStr);
+		Date dateReverse = new Date();
+		try {
+			dateReverse = sdf.parse(dateStr);
+			System.out.println(dateReverse.getDay());
+			System.out.println(dateReverse);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 }

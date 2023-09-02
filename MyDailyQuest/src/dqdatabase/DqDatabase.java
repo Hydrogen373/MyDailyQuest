@@ -1,7 +1,5 @@
 package dqdatabase;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -92,36 +90,128 @@ public class DqDatabase {
 		closeAll();
 	}
 
-	public boolean regenerate(String uid, String recent_completion_date) {
-		boolean result = false;
+	public ArrayList<String> getDones() {
+		ArrayList<String> result = new ArrayList<>();
 		createConnection();
 		if (conn != null) {
 			try {
-//				final String command = "UPDATE Info SET done = 0 WHERE uid is " + uid;
-//				final String command2 = "UPDATE Info SET recent_completion_date = '" + recent_completion_date
-//						+ "' WHERE uid is " + uid;
-//				stat.executeUpdate(command);
-//				stat.executeUpdate(command2);
-
-				final String sql = "UPDATE Info SET done = ?, recent_completion_date = ? WHERE uid is ?";
+				String sql = "SELECT uid FROM Info WHERE done = 1";
 				stmt = conn.prepareStatement(sql);
-				stmt.setInt(1, 0);
-				stmt.setString(2, recent_completion_date);
-				stmt.setString(2, uid);
-				stmt.executeUpdate();
+				ResultSet rs = stmt.executeQuery();
 
+				while (rs.next()) {
+					result.add(rs.getString("uid"));
+				}
+			} catch (Exception e) {
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public ArrayList<String> checkRegenRule(ArrayList<String> uids) {
+		ArrayList<String> result = new ArrayList<String>();
+		if (uids.isEmpty()) {
+			return uids;
+		}
+		createConnection();
+		if (conn != null) {
+			PreparedStatement stmt_today = null;
+			try {
+				String sql = null;
+				java.util.Date now = Calendar.getInstance().getTime();
+
+				stmt_today = conn.prepareStatement("SELECT tmp_completion_date FROM Info WHERE uid is ?");
+
+				sql = "SELECT rule FROM RegenRule WHERE uid = ?";
+				stmt = conn.prepareStatement(sql);
+				for (String uid : uids) {
+					stmt_today.setString(1, uid);
+					ResultSet rs = stmt_today.executeQuery();
+					rs.next();
+					if (rs.getString(1).equals(sdf.format(now))) {
+						// task is completed today
+						continue;
+					}
+
+					stmt.setString(1, uid);
+					rs = stmt.executeQuery();
+					EachUid: while (rs.next()) {
+						try {
+							int rule = Integer.valueOf(rs.getString("rule"));
+							if (31 < rule) {
+								if (now.getDay() == rule - 32) {
+									result.add(uid);
+									break EachUid;
+								}
+							} else {
+								if (now.getDate() == rule) {
+									result.add(uid);
+									break EachUid;
+								}
+							}
+						} catch (Exception e) {
+							System.err.println("Invalid RegenRule");
+						}
+					}
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if(stmt_today != null) {
+				try {
+					stmt_today.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public ArrayList<String> regenerate(ArrayList<String> uids) {
+		ArrayList<String> result = new ArrayList<>();
+		if (uids.isEmpty()) {
+			return uids;
+		}
+		createConnection();
+		if (conn != null) {
+			try {
+				final String sql = "UPDATE Info SET "
+						+ "recent_completion_date = (SELECT tmp_completion_date FROM Info  WHERE uid = ?), "
+						+ "done = 0 WHERE uid = ?";
+				stmt = conn.prepareStatement(sql);
+
+				for (String uid : uids) {
+					try {
+						stmt.setString(1, uid);
+						stmt.setString(2, uid);
+						stmt.executeUpdate();
+						result.add(uid);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				}
 				conn.commit();
-				result = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
 		closeAll();
 		return result;
 	}
-	
-	public HashMap<String, TaskBox> loadAllTask(){
+
+	public ArrayList<String> regenAll() {
+		ArrayList<String> result = getDones();
+		result = checkRegenRule(result);
+		result = regenerate(result);
+		return result;
+	}
+
+	public HashMap<String, TaskBox> loadAllTask() {
 		ensureConnection();
 		HashMap<String, TaskBox> result = new HashMap<>();
 		if (conn != null) {
@@ -140,6 +230,60 @@ public class DqDatabase {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean addRegenRule(String uid, ArrayList<String> rules) {
+		boolean result = true;
+		if (rules.isEmpty())
+			return true;
+		ensureConnection();
+
+		if (conn == null) {
+			return false;
+		}
+
+		try {
+			final String sql = "INSERT INTO RegenRule VALUES(?, ?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, uid);
+			for (String rule : rules) {
+				stmt.setString(2, rule);
+				stmt.execute();
+			}
+			conn.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
+		}
+		closeAll();
+		return result;
+	}
+
+	public boolean removeRegenRule(String uid, ArrayList<String> rules) {
+		boolean result = true;
+		if (rules.isEmpty())
+			return true;
+		ensureConnection();
+
+		if (conn == null) {
+			return false;
+		}
+
+		try {
+			final String sql = "DELETE FROM RegenRule WHERE uid is ? AND rule is ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, uid);
+			for (String rule : rules) {
+				stmt.setString(2, rule);
+				stmt.execute();
+			}
+			conn.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
 		}
 		closeAll();
 		return result;
@@ -278,9 +422,36 @@ public class DqDatabase {
 		closeAll();
 		return result;
 	}
-	
+
 	static public String generateUID() {
-		return UUID.randomUUID().toString();
+		String result = null;
+		DqDatabase db = new DqDatabase();
+		db.ensureConnection();
+		if (db.conn == null) {
+			System.err.println("DqDatabse fail to verify exclusiveness of uuid: no connection");
+			return UUID.randomUUID().toString();
+		}
+		try {
+			db.stmt = db.conn.prepareStatement("SELECT uid FROM Info WHERE uid = ?");
+			while (true) {
+				result = UUID.randomUUID().toString();
+
+				db.stmt.setString(1, result);
+				ResultSet rs = db.stmt.executeQuery();
+				if (!rs.next()) {
+					break;
+				} else {
+					// regenerate uid
+					continue;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("DqDatabse fail to verify exclusiveness of uuid: err");
+			return UUID.randomUUID().toString();
+		}
+		db.closeAll();
+		return result;
 	}
 
 	public boolean removeTask(String uid) {
@@ -509,5 +680,24 @@ public class DqDatabase {
 		return result;
 	}
 
-	
+	public ArrayList<Integer> loadActiveRule(String uid) {
+		ensureConnection();
+		ArrayList<Integer> result = new ArrayList<>();
+		if (conn == null) {
+			return null;
+		}
+		try {
+			stmt = conn.prepareStatement("SELECT rule FROM RegenRule WHERE uid = ?");
+			stmt.setString(1, uid);
+			ResultSet rs = null;
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				result.add(Integer.valueOf(rs.getString(1)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		closeAll();
+		return result;
+	}
 }

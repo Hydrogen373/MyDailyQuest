@@ -17,10 +17,9 @@ import javax.swing.border.LineBorder;
 
 public class DqCalendar extends JPanel {
 	private static DqCalendar instance;
-	static ArrayList<DqCalendarCell> weekCells = null;
-	static ArrayList<DqCalendarCell> dayCells = null;
 	static HashMap<Integer, Boolean> changeMap = null;
 	static HashMap<Integer, DqCalendarCell> day2cell = null;
+	static String taskId = null;
 
 	private DqCalendar() {
 	}
@@ -74,9 +73,19 @@ public class DqCalendar extends JPanel {
 
 	public static void setActive(ArrayList<Integer> active) {
 		for (Integer i : active) {
+			day2cell.get(i).checkEvent();
 			
 		}
 	}
+	
+	public static void setUid(String uid){
+		taskId = uid;
+	}
+	
+	public static HashMap<Integer, Boolean> getChangeMap() {
+		return changeMap;
+	}
+	
 }
 
 class DqDay {
@@ -110,12 +119,12 @@ class DqCalendarCell extends JLabel implements MouseListener {
 
 	public void init() {
 		if (check) {
-			check = false;
 			checkEvent();
 		}
 	}
 
 	public void checkEvent() {
+		check = !check;
 		if (check) {
 			this.setBackground(Color.cyan);
 		} else {
@@ -138,9 +147,8 @@ class DqCalendarCell extends JLabel implements MouseListener {
 		if (!ready)
 			return;
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			check = !check;
 			if (DqCalendar.changeMap.get(id) == null) {
-				DqCalendar.changeMap.put(id, check);
+				DqCalendar.changeMap.put(id, !check);
 			}
 			else {
 				DqCalendar.changeMap.remove(id);

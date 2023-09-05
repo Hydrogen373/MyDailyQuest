@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 public class SwitchingTextField extends JPanel {
+	private static final long serialVersionUID = 2L;
 	JLabel label = null;
 	JTextField tf = null;
 	CustomMouseListener mouseLabel = null;

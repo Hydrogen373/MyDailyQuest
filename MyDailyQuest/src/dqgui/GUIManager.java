@@ -89,7 +89,8 @@ public class GUIManager {
 
 		// page1 north
 		// init pinsPanel
-		FlowLayout layout_pinsPanel = new FlowLayout();
+		FlowLayout layout_pinsPanel = new FlowLayout(); 
+		// TODO It would be better to use #tag feature rather than pin feature. 
 		pinsPanel.setLayout(layout_pinsPanel);
 		pins = db.loadAllPin();
 		test();pinsPanel.add(refreshButton);// XXX debug

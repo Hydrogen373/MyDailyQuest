@@ -25,6 +25,8 @@ import javax.swing.border.LineBorder;
 import dqdatabase.DqDatabase;
 
 public class TaskBox extends JPanel {
+	private static final long serialVersionUID = 2L;
+
 	static Font font_date = new Font(null, 0, 15);
 	static Font font_content = new Font(null, Font.BOLD, 18);
 	static Font font_content_done = new Font(null, Font.ITALIC, 18);
@@ -83,8 +85,8 @@ public class TaskBox extends JPanel {
 		DqDatabase db = new DqDatabase();
 		String dateText = db.checkDone(getUID(), !getDone());
 		if (dateText != null) {
-			this.dateLabel.setText(dateText);
 			this.done = !this.done;
+			this.dateLabel.setText(dateText);
 			if (this.done) {
 				// done
 				checkLabel.setIcon(ICON_CHECKED);
@@ -140,6 +142,7 @@ class TaskMouseListener implements MouseListener {
 }
 
 class TaskPopupMenu extends JPopupMenu {
+	private static final long serialVersionUID = 2L;
 	static TaskPopupMenu instance = null;
 	static String taskId = null;
 

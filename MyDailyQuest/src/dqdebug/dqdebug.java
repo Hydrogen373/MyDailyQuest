@@ -41,7 +41,9 @@ public class dqdebug {
 	static JFrame mainFrame = null;
 
 	public static void main(String[] args) {
-		defaultPage();
+//		defaultPage();
+		highlightTf();
+
 	}
 
 	static void defaultPage() {
@@ -361,6 +363,23 @@ public class dqdebug {
 			System.out.println(dateReverse);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+	}
+
+	static void highlightTf() {
+		DqHighlightingTextArea htf = new DqHighlightingTextArea();
+		setup();
+		mainFrame.add(htf.ta);
+		show();
+
+		while (true) {
+			try {
+				Thread.sleep(5000);
+				htf.highlighting();
+
+			} catch (Exception e) {
+			}
 		}
 
 	}

@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import dqdatabase.DqDatabase;
 
 public class PinBox extends JPanel implements MouseListener {
+	private static final long serialVersionUID = 2L;
 	static final ImageIcon ICON_CIRCLE = new ImageIcon("icon/circle.png");
 	static final ImageIcon ICON_CHECKED = new ImageIcon("icon/check.png");
 	JLabel pinName = null;

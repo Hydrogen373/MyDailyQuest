@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
 public class DqCalendar extends JPanel {
+	private static final long serialVersionUID = 2L;
 	private static DqCalendar instance;
 	static HashMap<Integer, Boolean> changeMap = null;
 	static HashMap<Integer, DqCalendarCell> day2cell = null;

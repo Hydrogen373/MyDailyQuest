@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.print.StreamPrintService;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.sqlite.core.DB;
@@ -51,6 +53,7 @@ public class GUIManager {
 	private GUIManager() {
 		mainFrame = new JFrame();
 		mainFrame.setSize(425, 600);
+		// TODO set frame title and icon
 
 		mainPanel = new JPanel();
 		pages = new CardLayout();
@@ -128,10 +131,29 @@ public class GUIManager {
 
 		// center
 		JPanel center = new JPanel();
+
+		BoxLayout center_layout = new BoxLayout(center, BoxLayout.Y_AXIS);
+		center.setLayout(center_layout);
+		
+		// taskName
+		JTextField taskName = new JTextField();
+		taskName.setMaximumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, taskName.getPreferredSize().height));
 		// calendar
 		DqCalendar calendar = DqCalendar.getInstance();
-		// TODO pins
+		calendar.setMaximumSize(calendar.getPreferredSize());
+		// TODO HighlightingTextArea
+		DqHighlightingTextArea taskMemo = new DqHighlightingTextArea();
+//		taskMemo.getTextArea().setMaximumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, Integer.MAX_VALUE));
+//		taskMemo.getTextArea().setMinimumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, 0));
+		taskMemo.init();
+		center.add(taskName);
 		center.add(calendar);
+		center.add(taskMemo.getTextArea());
+		
+
+
+
+		
 		
 		JButton button_save = new JButton();
 		button_save.setText("save");
@@ -142,7 +164,7 @@ public class GUIManager {
 			public void mouseReleased(MouseEvent e) {
 				if(!ready) {
 					return;
-				}
+				}				
 				HashMap<Integer, Boolean> map = DqCalendar.getChangeMap();
 				
 				ArrayList<String> active = new ArrayList<>(), deactive= new ArrayList<>();
@@ -158,6 +180,8 @@ public class GUIManager {
 				DqDatabase db = new DqDatabase();
 				db.addRegenRule(DqCalendar.taskId, active);
 				db.removeRegenRule(DqCalendar.taskId, deactive);
+				
+				// TODO db.changeTags
 				
 				GUIManager.nextPage();
 			}

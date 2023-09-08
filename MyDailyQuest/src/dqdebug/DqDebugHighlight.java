@@ -9,7 +9,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-public class DqHighlightingTextArea {
+public class DqDebugHighlight {
 	public JTextArea ta = new JTextArea();
 	Highlighter highlighter = ta.getHighlighter();
 	HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.pink);

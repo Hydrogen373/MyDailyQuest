@@ -29,8 +29,6 @@ public class DqCalendar extends JPanel {
 		if (instance == null) {
 			instance = new DqCalendar();
 
-//			weekCells = new ArrayList<>();
-//			dayCells = new ArrayList<>();
 			day2cell = new HashMap<Integer, DqCalendarCell>();
 			changeMap = new HashMap<>();
 
@@ -100,6 +98,10 @@ class DqDay {
 }
 
 class DqCalendarCell extends JLabel implements MouseListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2L;
 	static Font font = new Font(null, Font.BOLD, 18);
 	boolean check = false;
 	int id;

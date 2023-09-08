@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import javax.print.attribute.HashAttributeSet;
@@ -696,6 +697,39 @@ public class DqDatabase {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		closeAll();
+		return result;
+	}
+	
+	public boolean changeTags(String taskId, HashSet<String> tags) {
+		boolean result = false;
+		ensureConnection();
+		
+		if(conn==null) {
+			return false;
+		}
+		try {
+			String sqlDelete = new String("DELETE FROM Tags WHERE taskId is ?");
+			String sqlInsert = new String("INSERT INTO Tags VALUES(?, ?)");
+			
+			stmt = conn.prepareStatement(sqlDelete);
+			stmt.setString(1, sqlInsert);
+			stmt.execute();
+			stmt.close();
+			
+			stmt = conn.prepareStatement(sqlInsert);
+			stmt.setString(1, taskId);
+			for(String tag : tags) {
+				stmt.setString(2, tag);
+				stmt.execute();
+			}
+			stmt.close();
+			result = true;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result = false;
 		}
 		closeAll();
 		return result;

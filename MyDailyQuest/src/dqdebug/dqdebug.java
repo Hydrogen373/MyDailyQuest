@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 
 import dqdatabase.DqDatabase;
 import dqgui.DqCalendar;
+import dqgui.DqHighlightingTextArea;
 import dqgui.GUIManager;
 import dqgui.SwitchingTextField;
 import dqgui.TaskBox;
@@ -41,7 +42,7 @@ public class dqdebug {
 	static JFrame mainFrame = null;
 
 	public static void main(String[] args) {
-//		defaultPage();
+		defaultPage();
 		highlightTf();
 
 	}
@@ -370,13 +371,17 @@ public class dqdebug {
 	static void highlightTf() {
 		DqHighlightingTextArea htf = new DqHighlightingTextArea();
 		setup();
-		mainFrame.add(htf.ta);
+		mainFrame.add(htf.getTextArea());
 		show();
 
 		while (true) {
 			try {
 				Thread.sleep(5000);
+				System.out.println();
 				htf.highlighting();
+				for (String tag : htf.getTags()) {
+					System.out.println(tag);
+				}
 
 			} catch (Exception e) {
 			}

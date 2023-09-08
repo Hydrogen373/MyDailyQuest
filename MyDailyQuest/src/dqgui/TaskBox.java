@@ -158,7 +158,6 @@ class TaskPopupMenu extends JPopupMenu {
 				// TODO function: revise task
 				DqCalendar.getInstance();
 				DqDatabase db = new DqDatabase();
-				// TODO setting calendar
 				DqCalendar.setUid(taskId);
 				ArrayList<Integer> rules = db.loadActiveRule(taskId);
 				//XXX debug

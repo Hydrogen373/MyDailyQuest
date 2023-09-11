@@ -2,6 +2,7 @@ package dqgui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -12,30 +13,34 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 
 import dqdatabase.DqDatabase;
 
 public class Page2 extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2L;
+
 	BorderLayout layoutThis = null;
 
-	//center
+	// center
 	JPanel center = null;
-	BoxLayout layoutCenter = null;
+	SpringLayout layoutCenter = null;
 	JTextField taskName = null;
 	DqHighlightingTextArea taskMemo = null;
-	//south
-	JButton buttonSave= null;
+	// south
+	JPanel south = null;
+	JButton buttonSave = null;
 	JButton buttonCancel = null;
 
-	private Page2() {
+	Page2() {
 		layoutThis = new BorderLayout();
 		this.setLayout(layoutThis);
 
 		// center
 		center = new JPanel();
-
-		layoutCenter = new BoxLayout(center, BoxLayout.Y_AXIS);
-		center.setLayout(layoutCenter);
 
 		// taskName
 		taskName = new JTextField();
@@ -50,6 +55,21 @@ public class Page2 extends JPanel {
 		center.add(taskName);
 		center.add(calendar);
 		center.add(taskMemo.getTextArea());
+
+		layoutCenter = new SpringLayout();
+		layoutCenter.putConstraint(SpringLayout.HORIZONTAL_CENTER, calendar, 0, SpringLayout.HORIZONTAL_CENTER, center);
+		layoutCenter.putConstraint(SpringLayout.NORTH, taskName, 5, SpringLayout.NORTH, center);
+		layoutCenter.putConstraint(SpringLayout.NORTH, calendar, 5, SpringLayout.SOUTH, taskName);
+		layoutCenter.putConstraint(SpringLayout.NORTH, taskMemo.getTextArea(), 5, SpringLayout.SOUTH, calendar);
+		layoutCenter.putConstraint(SpringLayout.SOUTH, center, 5, SpringLayout.SOUTH, taskMemo.getTextArea());
+		layoutCenter.putConstraint(SpringLayout.WEST, taskName, 5, SpringLayout.WEST, center);
+		layoutCenter.putConstraint(SpringLayout.EAST, taskName, -5, SpringLayout.EAST, center);
+		layoutCenter.putConstraint(SpringLayout.WEST, taskMemo.getTextArea(), 5, SpringLayout.WEST, center);
+		layoutCenter.putConstraint(SpringLayout.EAST, taskMemo.getTextArea(), -5, SpringLayout.EAST, center);
+		center.setLayout(layoutCenter);
+		
+		south = new JPanel();
+		south.setLayout(new FlowLayout());
 
 		buttonSave = new JButton();
 		buttonSave.setText("save");
@@ -116,9 +136,10 @@ public class Page2 extends JPanel {
 			}
 		});
 
+		south.add(buttonSave);
+		south.add(buttonCancel);
 		this.add(center, BorderLayout.CENTER);
-		this.add(buttonSave, BorderLayout.SOUTH);
-		this.add(buttonCancel, BorderLayout.SOUTH);
+		this.add(south, BorderLayout.SOUTH);
 	}
 
 	public void save() {
@@ -138,10 +159,11 @@ public class Page2 extends JPanel {
 		db.removeRegenRule(DqCalendar.taskId, deactive);
 
 		// TODO db.changeTags
-		
+
 	}
+
 	public void cancel() {
 		// TODO
-		
+
 	}
 }

@@ -23,6 +23,8 @@ public class DqHighlightingTextArea {
 
 	public DqHighlightingTextArea() {
 		ta.getDocument().addDocumentListener(listener);
+		ta.setLineWrap(true);
+		ta.setAutoscrolls(true);
 		this.init();
 	}
 	

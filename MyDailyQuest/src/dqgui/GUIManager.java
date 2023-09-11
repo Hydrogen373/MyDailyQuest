@@ -32,6 +32,7 @@ import javax.swing.border.LineBorder;
 import org.sqlite.core.DB;
 
 import dqdatabase.DqDatabase;
+import dqgui.Page2;
 
 public class GUIManager {
 	static GUIManager instance = null;
@@ -63,8 +64,8 @@ public class GUIManager {
 		JPanel page1 = new JPanel();
 		initPage1(page1);
 
-		JPanel page2 = new JPanel();
-		initPage2(page2);
+		Page2 page2 = new Page2();
+//		initPage2(page2);
 
 		mainPanel.add(page1);
 		mainPanel.add(page2);
@@ -124,90 +125,6 @@ public class GUIManager {
 		page1.add(pinsPanel, BorderLayout.NORTH);
 		page1.add(center, BorderLayout.CENTER);
 		page1.add(additionalTaskPanel, BorderLayout.SOUTH);
-	}
-
-	static private void initPage2(JPanel page2) {
-		page2.setLayout(new BorderLayout());
-
-		// center
-		JPanel center = new JPanel();
-
-		BoxLayout center_layout = new BoxLayout(center, BoxLayout.Y_AXIS);
-		center.setLayout(center_layout);
-		
-		// taskName
-		JTextField taskName = new JTextField();
-		taskName.setMaximumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, taskName.getPreferredSize().height));
-		// calendar
-		DqCalendar calendar = DqCalendar.getInstance();
-		calendar.setMaximumSize(calendar.getPreferredSize());
-		// TODO HighlightingTextArea
-		DqHighlightingTextArea taskMemo = new DqHighlightingTextArea();
-//		taskMemo.getTextArea().setMaximumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, Integer.MAX_VALUE));
-//		taskMemo.getTextArea().setMinimumSize(new Dimension(DqCalendar.getInstance().getPreferredSize().width, 0));
-		taskMemo.init();
-		center.add(taskName);
-		center.add(calendar);
-		center.add(taskMemo.getTextArea());
-		
-
-
-
-		
-		
-		JButton button_save = new JButton();
-		button_save.setText("save");
-		button_save.addMouseListener(new MouseListener() {
-			boolean ready = false;
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(!ready) {
-					return;
-				}				
-				HashMap<Integer, Boolean> map = DqCalendar.getChangeMap();
-				
-				ArrayList<String> active = new ArrayList<>(), deactive= new ArrayList<>();
-				for(int rule : map.keySet()) {
-					if(map.get(rule)) {
-						active.add(Integer.toString(rule));
-					}
-					else {
-						deactive.add(Integer.toString(rule));
-					}
-				}
-
-				DqDatabase db = new DqDatabase();
-				db.addRegenRule(DqCalendar.taskId, active);
-				db.removeRegenRule(DqCalendar.taskId, deactive);
-				
-				// TODO db.changeTags
-				
-				GUIManager.nextPage();
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				ready = false;
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				ready = true;
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-		});
-
-
-		page2.add(center, BorderLayout.CENTER);
-		page2.add(button_save , BorderLayout.SOUTH);
 	}
 
 	static private void show() {

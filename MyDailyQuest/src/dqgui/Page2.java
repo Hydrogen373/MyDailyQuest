@@ -18,9 +18,6 @@ import javax.swing.SpringLayout;
 import dqdatabase.DqDatabase;
 
 public class Page2 extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2L;
 
 	BorderLayout layoutThis = null;

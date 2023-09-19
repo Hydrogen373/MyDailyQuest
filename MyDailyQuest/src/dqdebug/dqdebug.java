@@ -43,8 +43,7 @@ public class dqdebug {
 
 	public static void main(String[] args) {
 		defaultPage();
-		highlightTf();
-
+		
 	}
 
 	static void defaultPage() {

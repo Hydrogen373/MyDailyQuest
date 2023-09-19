@@ -31,6 +31,7 @@ import javax.swing.border.LineBorder;
 
 import org.sqlite.core.DB;
 
+import dqdatabase.DqDBUtils;
 import dqdatabase.DqDatabase;
 import dqgui.Page2;
 
@@ -109,7 +110,7 @@ public class GUIManager {
 		// page1 center
 		// init taskPanel
 		// init uid2task
-		uid2task = db.loadAllTask();
+		uid2task = DqDBUtils.loadAllTask();
 		// init sortedUids
 		sortUids();
 		tasksPanel = new JPanel();

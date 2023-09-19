@@ -17,7 +17,7 @@ public class DqHighlightingTextArea {
 	Highlighter highlighter = ta.getHighlighter();
 	HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.cyan);
 	HashSet<String> tagsSet = new HashSet<String>();
-	CustomDocumentListener listener = new CustomDocumentListener();
+	CustomDocumentListener listener = new CustomDocumentListener(this);
 
 	static String patternStr = "#[\\w|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+\\b";
 
@@ -63,20 +63,31 @@ public class DqHighlightingTextArea {
 		return this.tagsSet;
 	}
 
-	class CustomDocumentListener implements DocumentListener {
+	static class CustomDocumentListener implements DocumentListener {
+		DqHighlightingTextArea instance=null;
+		
+		CustomDocumentListener(DqHighlightingTextArea instance){
+			if(instance == null) {
+				throw new NullPointerException();
+			}
+			else {
+				this.instance = instance;
+			}
+		}
+		
 		@Override
 		public void insertUpdate(DocumentEvent e) {
-			highlighting();
+			instance.highlighting();
 		}
 
 		@Override
 		public void removeUpdate(DocumentEvent e) {
-			highlighting();
+			instance.highlighting();
 		}
 
 		@Override
 		public void changedUpdate(DocumentEvent e) {
-			highlighting();
+			instance.highlighting();
 
 		}
 

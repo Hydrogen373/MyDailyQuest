@@ -11,7 +11,7 @@ public class DqTask {
 
 
 	static class TaskData {
-		String taskId = null;
-		HashSet<String> tags = null;
+		public String taskId = null;
+		public HashSet<String> tags = null;
 	}
 }

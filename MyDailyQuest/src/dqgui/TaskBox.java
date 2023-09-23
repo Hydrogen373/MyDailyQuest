@@ -160,10 +160,7 @@ class TaskPopupMenu extends JPopupMenu {
 				DqDatabase db = new DqDatabase();
 				DqCalendar.setUid(taskId);
 				ArrayList<Integer> rules = db.loadActiveRule(taskId);
-				//XXX debug
-				for(int rule : rules) {
-					System.out.println(rule);
-				}
+				// TODO init task name text field, memo text area in page2
 				DqCalendar.setActive(rules);
 				// goto next page
 				GUIManager.nextPage();

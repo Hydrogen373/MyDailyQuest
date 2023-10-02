@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 
 import dqgui.TaskBox;
 
@@ -65,6 +66,32 @@ public class DqDBUtils {
 		return result;
 	}
 	
+	static public String generateUID() {
+		String result = null;
+		DqDBConnection db = new DqDBConnection();
+		db.ensureConnection();
+		try {
+			PreparedStatement prst = db.prepareStatement("SELECT uid FROM Info WHERE uid = ?");
+			while (true) {
+				result = UUID.randomUUID().toString();
+
+				prst.setString(1, result);
+				ResultSet rs = prst.executeQuery();
+				if (!rs.next()) {
+					break;
+				} else {
+					// regenerate UID
+					continue;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("DqDatabse fail to verify exclusiveness of uuid: err");
+			return UUID.randomUUID().toString();
+		}
+		db.closeAll();
+		return result;
+	}
 	
 	
 }

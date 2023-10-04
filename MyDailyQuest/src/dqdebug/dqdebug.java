@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import dqdatabase.DqDBUtils;
 import dqdatabase.DqDatabase;
 import dqgui.DqCalendar;
 import dqgui.DqHighlightingTextArea;
@@ -42,7 +43,10 @@ public class dqdebug {
 	static JFrame mainFrame = null;
 
 	public static void main(String[] args) {
-		defaultPage();
+//		defaultPage();
+		DqDBUtils.addTask("debug", "debug content");
+		DqDBUtils.removeTask("debug");
+		DqDBUtils.removeTask("debug");
 		
 	}
 

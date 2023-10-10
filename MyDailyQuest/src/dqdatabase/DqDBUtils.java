@@ -22,9 +22,11 @@ public class DqDBUtils {
 		ArrayList<String> result = new ArrayList<String>();
 		Date today = Calendar.getInstance().getTime();
 
-		String sql = "UPDATE Task SET recentCompletionDate = tmpCompletionDate, done = 0 " + "WHERE uid in "
-				+ "(SELECT uid FROM RegenRule WHERE rule = ? OR rule = ?) " + "and uid in "
-				+ "(SELECT uid FROM Info WHERE done = 1 AND tmp_completion_date != ?)";
+		String sql = "UPDATE tasks SET recent_completion_date = tmp_completion_date, done = 0 " 
+				+ "WHERE taskID in ("
+				+ "SELECT taskID FROM regeneration_rules WHERE rule = ? OR rule = ? " + "INTERSECT "
+				+ "SELECT taskID FROM tasks WHERE done = 1 AND tmp_completion_date <> ?"
+				+ ")";
 
 		DqDBConnection db = new DqDBConnection();
 		try {
@@ -45,16 +47,16 @@ public class DqDBUtils {
 		HashMap<String, TaskBox> result = new HashMap<>();
 		DqDBConnection db = new DqDBConnection();
 		try {
-			final String sql = "SELECT * FROM Info";
+			final String sql = "SELECT * FROM tasks";
 			PreparedStatement prst = db.prepareStatement(sql);
 			ResultSet rs = prst.executeQuery();
 			while (rs.next()) {
-				String uid = rs.getString("uid");
+				String taskID = rs.getString("taskID");
 				String content = rs.getString("content");
 				boolean done = (rs.getInt("done") == 1);
 				String date = rs.getString((done ? "tmp_completion_date" : "recent_completion_date"));
 
-				result.put(uid, new TaskBox(uid, content, date, done));
+				result.put(taskID, new TaskBox(taskID, content, date, done));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -68,13 +70,14 @@ public class DqDBUtils {
 		DqDBConnection db = new DqDBConnection();
 		db.ensureConnection();
 		try {
-			PreparedStatement prst = db.prepareStatement("SELECT uid FROM Info WHERE uid = ?");
+			PreparedStatement prst = db.prepareStatement("SELECT count(taskID) FROM tasks WHERE taskID = ?");
 			while (true) {
 				result = UUID.randomUUID().toString();
 
 				prst.setString(1, result);
 				ResultSet rs = prst.executeQuery();
-				if (!rs.next()) {
+				rs.next();
+				if (rs.getInt(1) == 0) {
 					break;
 				} else {
 					// regenerate UID
@@ -90,14 +93,14 @@ public class DqDBUtils {
 		return result;
 	}
 
-	static public boolean addTask(String taskId, String content) {
+	static public boolean addTask(String taskID, String content) {
 		boolean result = false;
 
 		DqDBConnection db = new DqDBConnection();
-		String sql = "INSERT INTO Tasks VALUES(?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO tasks VALUES(?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement prst = db.prepareStatement(sql);
-			prst.setString(1, taskId);
+			prst.setString(1, taskID);
 			prst.setString(2, content);
 			prst.setString(3, DEFAULT_DATE);
 			prst.setInt(4, 0);
@@ -113,13 +116,13 @@ public class DqDBUtils {
 
 	}
 
-	static public boolean removeTask(String taskId) {
+	static public boolean removeTask(String taskID) {
 		boolean result = false;
 		DqDBConnection db = new DqDBConnection();
-		String sql = "DELETE FROM Tasks WHERE taskId == ?";
+		String sql = "DELETE FROM tasks WHERE taskID = ?";
 		try {
 			PreparedStatement prst = db.prepareStatement(sql);
-			prst.setString(1, taskId);
+			prst.setString(1, taskID);
 			prst.execute();
 
 		} catch (Exception e) {
@@ -131,6 +134,7 @@ public class DqDBUtils {
 	}
 	
 	static private class TaskSorter{
+		// TODO
 		static private String sql = "SELECT FROM Tags WHERE taskId == ? AND tag == ?";
 
 		DqDBConnection db = null;

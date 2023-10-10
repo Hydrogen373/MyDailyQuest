@@ -44,9 +44,8 @@ public class dqdebug {
 
 	public static void main(String[] args) {
 //		defaultPage();
-		DqDBUtils.addTask("debug", "debug content");
-		DqDBUtils.removeTask("debug");
-		DqDBUtils.removeTask("debug");
+
+		System.out.println(DqDBUtils.generateUID());
 		
 	}
 
